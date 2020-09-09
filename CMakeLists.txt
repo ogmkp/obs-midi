@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Change obs-plugintemplate to your plugin's name in a machine-readable format
-# (e.g.: obs-myawesomeplugin) and set 
-project(obs-plugintemplate VERSION 1.0.0)
+# (e.g.: obs-myawesomeplugin) and set
+project(obs-midi VERSION 1.0.0)
 
 # Replace `Your Name Here` with the name (yours or your organization's) you want
 # to see as the author of the plugin (in the plugin's metadata itself and in the installers)
-set(PLUGIN_AUTHOR "Your Name Here")
+set(PLUGIN_AUTHOR "Christopher P Yarger")
 
 # Replace `com.example.obs-plugin-template` with a unique Bundle ID for macOS releases
 # (used both in the installer and when submitting the installer for notarization)
-set(MACOS_BUNDLEID "com.example.obs-plugintemplate")
+set(MACOS_BUNDLEID "com.example.obs-midi")
 
 # Replace `me@contoso.com` with the maintainer email address you want to put in Linux packages
-set(LINUX_MAINTAINER_EMAIL "me@contoso.com")
+set(LINUX_MAINTAINER_EMAIL "cpyarger@gmail.com")
 
 # TAKE NOTE: No need to edit things past this point
 
@@ -55,11 +55,27 @@ configure_file(
     ../ci/ci_includes.generated.cmd
 )
 
+set(plugin_ui
+        src/forms/plugin-window.ui
+)
+
+qt5_wrap_ui(plugin_ui_headers ${plugin_ui})
+
 set(PLUGIN_SOURCES
-	src/plugin-main.c)
+	${plugin_ui_headers}
+	src/plugin-main.cpp
+    src/forms/plugin-window.cpp
+    src/Device_Manager.cpp
+    src/OBSMIDI.cpp
+    src/Utils.cpp)
 
 set(PLUGIN_HEADERS
-	src/plugin-macros.generated.h)
+    src/plugin-main.hpp
+    src/forms/plugin-window.hpp
+    src/Device_Manager.hpp
+    src/OBSMIDI.hpp
+    src/Utils.hpp
+    src/Config.hpp)
 
 # --- Platform-independent build settings ---
 add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS})
@@ -68,9 +84,12 @@ include_directories(
 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
 	${Qt5Core_INCLUDES}
 	${Qt5Widgets_INCLUDES}
+    SYSTEM
+    "${CMAKE_SOURCE_DIR}/UI"
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
+    "${OBS_FRONTEND_LIB}"
 	libobs
 	Qt5::Core
 	Qt5::Widgets
@@ -141,25 +160,17 @@ if(WIN32)
         COMMAND if $<CONFIG:Debug>==1 (
             "${CMAKE_COMMAND}" -E copy
                 "$<TARGET_FILE:${CMAKE_PROJECT_NAME}>"
-                "${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}"
+                "../build/rundir/Debug/obs-plugins/64bit/"
         )
 
         COMMAND if $<CONFIG:Debug>==1 (
             "${CMAKE_COMMAND}" -E copy
                 "$<TARGET_PDB_FILE:${CMAKE_PROJECT_NAME}>"
-                "${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}"
+                "../build/rundir/Debug/obs-plugins/64bit/"
         )
 
-        COMMAND if $<CONFIG:Debug>==1 (
-            "${CMAKE_COMMAND}" -E make_directory
-                "${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/${CMAKE_PROJECT_NAME}"
-        )
+       
 
-        COMMAND if $<CONFIG:Debug>==1 (
-            "${CMAKE_COMMAND}" -E copy_directory
-                "${PROJECT_SOURCE_DIR}/data"
-                "${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/${CMAKE_PROJECT_NAME}"
-        )
     )
 	# --- End of sub-section ---
 
@@ -191,3 +202,5 @@ if(APPLE)
 	target_link_libraries(${CMAKE_PROJECT_NAME} "${OBS_FRONTEND_LIB}")
 endif()
 # -- End of section --
+
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES FOLDER "Plugins")
