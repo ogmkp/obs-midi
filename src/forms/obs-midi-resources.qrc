@@ -1,0 +1,7 @@
+<RCC>
+  <qresource>
+    <file>images/midiplug.png</file>
+    <file>images/obslogo.png</file>
+    <file>images/midi.svg</file>
+  </qresource>
+</RCC>

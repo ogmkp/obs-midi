@@ -1,4 +1,7 @@
 /*
+obs-websocket
+Copyright (C) 2016-2019	Stéphane Lepin <stephane.lepin@gmail.com>
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -14,25 +17,33 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
 #pragma once
+
+#if __has_include(<obs-frontend-api.h>)
+#include <obs-frontend-api.h>
+#else
+#include <obs-frontend-api/obs-frontend-api.h>
+#endif
+#include <util/config-file.h>
+#include <QtCore/QString>
+#include <QtCore/QSharedPointer>
 #include <vector>
-#include <QDialog>
-#include "ui_plugin-window.h"
 
-class PluginWindow : public QDialog {
-	Q_OBJECT
+using namespace std;
 
+class Config {
 public:
-	PluginWindow(QWidget* parent);
-	~PluginWindow();
-	void ShowPair(QString Pair);
-	void HidePair(QString Pair);
-	void HideAllPairs();
-public slots:
-	void SetStatus(QString label,QString Status);
-	QLabel* GetLabel(QString label);
-private Q_SLOTS:
-	void ToggleShowHide();
-private:
-	Ui::PluginWindow* ui;
+	Config();
+	~Config();
+	void Load();
+	void Save();
+	void SetDefaults();
+	config_t *GetConfigStore();
 
+	bool DebugEnabled;
+	bool AlertsEnabled;
+
+	bool SettingsLoaded;
+
+private:
+	static void OnFrontendEvent(enum obs_frontend_event event, void *param);
 };

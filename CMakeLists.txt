@@ -23,7 +23,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 # In case you need C++
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (WIN32 OR APPLE)
@@ -33,51 +33,68 @@ endif()
 find_package(LibObs REQUIRED)
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 
-configure_file(
-    src/plugin-macros.h.in
-    ../src/plugin-macros.generated.h
-)
-configure_file(
-    installer/installer-macOS.pkgproj.in
-    ../installer/installer-macOS.generated.pkgproj
-)
-configure_file(
-    installer/installer-Windows.iss.in
-    ../installer/installer-Windows.generated.iss
-)
-
-configure_file(
-    ci/ci_includes.sh.in
-    ../ci/ci_includes.generated.sh
-)
-configure_file(
-    ci/ci_includes.cmd.in
-    ../ci/ci_includes.generated.cmd
-)
 
 set(plugin_ui
         src/forms/plugin-window.ui
 )
 
 qt5_wrap_ui(plugin_ui_headers ${plugin_ui})
+# Version bits
+execute_process(
+  COMMAND git rev-parse --abbrev-ref HEAD
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_BRANCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# Get the latest abbreviated commit hash of the working branch
+execute_process(
+  COMMAND git log -1 --format=%h
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_COMMIT_HASH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/version.h.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/version.h
+)
+
+
+##################
+# THE GOOD STUFF #
+##################
+
+# RTMIDI
+add_subdirectory(src/RtMidi17)
+set(obs-midi_DEPS RtMidi17)
+include_directories(src/RtMidi17)
+
 
 set(PLUGIN_SOURCES
-	${plugin_ui_headers}
-	src/plugin-main.cpp
-    src/forms/plugin-window.cpp
-    src/Device_Manager.cpp
-    src/OBSMIDI.cpp
-    src/Utils.cpp)
+	src/utils.cpp
+	src/config.cpp
+	src/midi-agent.cpp
+	src/device-manager.cpp
+	src/obs-controller.cpp
+	src/forms/plugin-window.cpp
+	src/obs-midi.cpp
+	src/events.cpp
+	src/rpc/RpcEvent.cpp)
 
-set(PLUGIN_HEADERS
-    src/plugin-main.hpp
+list(APPEND PLUGIN_HEADERS
+    src/utils.h
+	src/config.h
+	src/midi-agent.h
+	src/device-manager.h
+	src/obs-controller.h
     src/forms/plugin-window.hpp
-    src/Device_Manager.hpp
-    src/OBSMIDI.hpp
-    src/Utils.hpp
-    src/Config.hpp)
+	src/obs-midi.h
+	src/events.h
+	src/rpc/RpcEvent.h)
 
-# --- Platform-independent build settings ---
+
+# --- End of section ---
 add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS})
 
 include_directories(
@@ -94,8 +111,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 	Qt5::Core
 	Qt5::Widgets
 )
-
-# --- End of section ---
 
 # --- Windows-specific build settings and tasks ---
 if(WIN32)

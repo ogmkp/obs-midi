@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>PluginWindow</class>
  <widget class="QDialog" name="PluginWindow">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +14,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>OBS MIDI Settings</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -23,7 +29,7 @@
       <attribute name="title">
        <string>Devices</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,1">
+      <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,0">
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
@@ -110,7 +116,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLabel" name="lbl_ststus">
+           <widget class="QLabel" name="lbl_input">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -120,8 +126,14 @@
             <property name="layoutDirection">
              <enum>Qt::LeftToRight</enum>
             </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string>Disconnected</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -193,12 +205,25 @@
           </item>
           <item row="5" column="1">
            <widget class="QComboBox" name="cb_output_devices">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <item>
+             <property name="text">
+              <string>New Item</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>New Item2</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="0" column="1">
@@ -232,6 +257,9 @@
             <property name="text">
              <string>Enable Device</string>
             </property>
+            <property name="buddy">
+             <cstring>checkBox</cstring>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -242,9 +270,15 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLabel" name="label_9">
+           <widget class="QLabel" name="lbl_output">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string>Disconnected</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -269,6 +303,9 @@
            <verstretch>3</verstretch>
           </sizepolicy>
          </property>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
          <column>
           <property name="text">
            <string>Channel</string>
@@ -296,7 +333,7 @@
          </column>
          <column>
           <property name="text">
-           <string>New Column</string>
+           <string>Action Paramaters</string>
           </property>
          </column>
         </widget>
@@ -1194,6 +1231,25 @@
    </item>
   </layout>
  </widget>
- <resources/>
- <connections/>
+ <resources>
+  <include location="obs-midi-resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>checkBox_2</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_output_devices</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>767</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>751</x>
+     <y>351</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

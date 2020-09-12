@@ -1,6 +1,6 @@
 /*
-Plugin Name
-Copyright (C) <Year> <Developer> <Email Address>
+obs-websocket
+Copyright (C) 2016-2020	Stéphane Lepin <stephane.lepin@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,12 +16,19 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#ifndef PLUGINNAME_H
-#define PLUGINNAME_H
-
-#define PLUGIN_NAME "@CMAKE_PROJECT_NAME@"
-#define PLUGIN_VERSION "@CMAKE_PROJECT_VERSION@"
-
-#define blog(level, msg, ...) blog(level, "[" PLUGIN_NAME "] " msg, ##__VA_ARGS__)
-
-#endif // PLUGINNAME_H
+#include "RpcEvent.h"
+#include <optional>
+RpcEvent::RpcEvent(const QString &updateType,
+		   std::optional<uint64_t> streamTime,
+		   std::optional<uint64_t> recordingTime,
+		   obs_data_t *additionalFields)
+	: _updateType(updateType),
+	  _streamTime(streamTime),
+	  _recordingTime(recordingTime),
+	  _additionalFields(nullptr)
+{
+	if (additionalFields) {
+		_additionalFields = obs_data_create();
+		obs_data_apply(_additionalFields, additionalFields);
+	}
+}
