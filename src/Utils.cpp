@@ -52,16 +52,13 @@ int Utils::mapper2(double x)
 		out_min);
 }
 
-bool Utils::is_number(const std::string &s)
+bool Utils::is_number(const QString &s)
 {
-	std::string::const_iterator it = s.begin();
-	while (it != s.end() && std::isdigit(*it))
-		++it;
-	return !s.empty() && it == s.end();
+	QRegExp re("\\d*");  // a digit (\d), zero or more times (*)
+	return re.exactMatch(s);
 }
 bool Utils::inrange(int low, int high, int x)
 {
-
 	return ((x - low) <= (high - low));
 }
 int Utils::get_midi_note_or_control(rtmidi::message mess)
@@ -166,7 +163,7 @@ int Utils::get_midi_value(rtmidi::message mess)
 	return mess[bytetopullfrom];
 }
 
-std::string Utils::mtype_to_string(rtmidi::message_type mess)
+QString Utils::mtype_to_string(rtmidi::message_type mess)
 {
 	switch (mess) {
 	case rtmidi::message_type::INVALID:
@@ -225,7 +222,7 @@ std::string Utils::mtype_to_string(rtmidi::message_type mess)
 	}
 }
 
-std::string Utils::getMidiMessageType(int in)
+QString Utils::getMidiMessageType(int in)
 {
 	//currently sets from a few  non breaking returns, will need to have message format structs to return here instead
 	if (inrange(128, 143, in)) {
@@ -1163,18 +1160,17 @@ QString Utils::nsToTimestamp(uint64_t ns)
 
 /* Returns a vector list of source names for sources with video
 */
-vector<const char *> Utils::GetVideoSourceNames()
+QStringList Utils::GetVideoSourceNames()
 {
-	vector<const char *> sourceNames;
+	QStringList sourceNames;
 	obs_enum_sources(
 		[](void *data, obs_source_t *source) {
-			auto &sn = *static_cast<vector<const char *> *>(data);
+			auto &sn = *static_cast<QStringList *>(data);
 			bool hasAudio = (obs_source_get_output_flags(source) &
 					 OBS_SOURCE_VIDEO);
 			if (hasAudio) {
-				sn.push_back(obs_source_get_name(source));
+				sn.append(obs_source_get_name(source));
 			}
-
 			return true;
 		},
 		static_cast<void *>(&sourceNames));
@@ -1184,22 +1180,20 @@ vector<const char *> Utils::GetVideoSourceNames()
 
 /* Returns a vector list of source names for sources with audio
 */
-vector<const char *> Utils::GetAudioSourceNames()
+QStringList Utils::GetAudioSourceNames()
 {
-	vector<const char *> sourceNames;
+	QStringList sourceNames;
 	obs_enum_sources(
 		[](void *data, obs_source_t *source) {
-			auto &sn = *static_cast<vector<const char *> *>(data);
+			auto& sn = *static_cast<QStringList*>(data);
 			bool hasAudio = (obs_source_get_output_flags(source) &
 					 OBS_SOURCE_AUDIO);
 			if (hasAudio) {
-				sn.push_back(obs_source_get_name(source)
-
+				sn.append(obs_source_get_name(source)
 				);
 			}
 			return true;
 		},
 		static_cast<void *>(&sourceNames));
-
 	return sourceNames;
 }

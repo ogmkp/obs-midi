@@ -19,7 +19,6 @@
 #include "utils.h"
 #include "midi-agent.h"
 #include "events.h"
-using namespace std;
 
 void ___source_dummy_addref(obs_source_t *) {}
 void ___sceneitem_dummy_addref(obs_sceneitem_t *) {}

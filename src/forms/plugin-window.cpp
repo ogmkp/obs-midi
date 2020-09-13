@@ -13,23 +13,51 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#if __has_include(<obs-frontend-api.h>)
 #include <obs-frontend-api.h>
-#else
-#include <obs-frontend-api/obs-frontend-api.h>
-#endif
+
 #include "plugin-window.hpp"
 #include <obs-data.h>
 #include <obs-module.h>
-
+#include "../obs-midi.h"
+#include "../device-manager.h"
 PluginWindow::PluginWindow(QWidget *parent) : ui(new Ui::PluginWindow) {
   ui->setupUi(this);
   HideAllPairs();
   blog(LOG_DEBUG, "Plugin window started");
   SetStatus("input", "Error");
   SetStatus("output", "Connected");
+  SetAvailableDevices();
+  
+}
+void PluginWindow::SetAvailableDevices()
+{
+
+    
+    auto midiDevices = GetDeviceManager()->GetPortsList();
+
+    this->ui->tableWidget->clear();
+
+
+    if (midiDevices.size() == 0) {
+        this->ui->tableWidget->insertRow(0);
+        QTableWidgetItem *n = new QTableWidgetItem();
+        n->setText("No Devices Available");
+        this->ui->tableWidget->setItem(0,0,n);
+    }
+
+    
+
+    for (int i = 0; i < midiDevices.size(); i++) {
+        this->ui->tableWidget->insertRow(i);
+        QTableWidgetItem* n = new QTableWidgetItem();
+        n->setText(midiDevices.at(i));
+        this->ui->tableWidget->setItem(i, 0, n);
+    }
+
+
 }
 
+  
 PluginWindow::~PluginWindow() { delete ui; }
 
 void PluginWindow::ShowPair(QString Pair) {

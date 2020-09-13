@@ -28,7 +28,6 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <QtCore/QSharedPointer>
 #include <vector>
 
-using namespace std;
 
 class Config {
 public:

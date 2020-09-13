@@ -16,6 +16,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #pragma once
 #include <vector>
 #include <QDialog>
+#include <QtWidgets>
 #include "ui_plugin-window.h"
 
 class PluginWindow : public QDialog {
@@ -23,6 +24,7 @@ class PluginWindow : public QDialog {
 
 public:
 	PluginWindow(QWidget* parent);
+	void SetAvailableDevices();
 	~PluginWindow();
 	void ShowPair(QString Pair);
 	void HidePair(QString Pair);

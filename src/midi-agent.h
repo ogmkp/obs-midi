@@ -18,7 +18,6 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #pragma once
 
 #include <obs-frontend-api.h>
-#include "rtmidi17/rtmidi17.hpp"
 #include <QtCore/QString>
 #include <QtCore/QSharedPointer>
 #include <vector>
@@ -28,26 +27,24 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <string>
 #include <iostream>
 #include "obs-controller.h"
-#include "obs-controller.h"
 #include "rpc/RpcEvent.h"
 #include "utils.h"
-using namespace std;
 
 class MidiHook {
 public:
-	string type;
+	QString type;
 	int index;
 	bool bidirectional;
 	int mchan; //midi channel
-	string action;
-	string command;
-	string param1;
-	string param2;
-	string param3;
+	QString action;
+	QString command;
+	QString param1;
+	QString param2;
+	QString param3;
 	MidiHook(){};
-	MidiHook(string midiMessageType, int midiChannelIndex, int midiChannel,
-		 bool bidirectionals, string OBSCommand, string p1 = "",
-		 string p2 = "", string p3 = "", string actionType = "")
+	MidiHook(QString midiMessageType, int midiChannelIndex, int midiChannel,
+		 bool bidirectionals, QString OBSCommand, QString p1 = "",
+		 QString p2 = "", QString p3 = "", QString actionType = "")
 		: type(midiMessageType),
 		  index(midiChannelIndex),
 		  mchan(midiChannel),
@@ -58,7 +55,7 @@ public:
 		  action(actionType)
 	{
 		// if action not provided, default to button or fader depending on command
-		if (actionType.empty()) {
+		if (actionType.isEmpty()) {
 			action = (command == "note_on" ? "button" : "fader");
 		}
 	}
@@ -79,14 +76,14 @@ public:
 	obs_data_t *GetData()
 	{
 		obs_data_t *data = obs_data_create();
-		obs_data_set_string(data, "type", type.c_str());
+		obs_data_set_string(data, "type", type.toStdString().c_str());
 		obs_data_set_int(data, "index", index);
 		obs_data_set_int(data, "mchan", mchan);
-		obs_data_set_string(data, "action", action.c_str());
-		obs_data_set_string(data, "command", command.c_str());
-		obs_data_set_string(data, "param1", param1.c_str());
-		obs_data_set_string(data, "param2", param2.c_str());
-		obs_data_set_string(data, "param3", param3.c_str());
+		obs_data_set_string(data, "action", action.toStdString().c_str());
+		obs_data_set_string(data, "command", command.toStdString().c_str());
+		obs_data_set_string(data, "param1", param1.toStdString().c_str());
+		obs_data_set_string(data, "param2", param2.toStdString().c_str());
+		obs_data_set_string(data, "param3", param3.toStdString().c_str());
 		return data;
 	}
 
@@ -105,9 +102,9 @@ public:
 	void OpenOutPort(int outport);
 	void ClosePort();
 
-	string GetName();
-	string GetOutName();
-	void SetOutName(string oname);
+	QString GetName();
+	QString GetOutName();
+	void SetOutName(QString oname);
 	int GetPort();
 	bool isEnabled();
 	bool isConnected();
@@ -115,9 +112,9 @@ public:
 	bool setBidirectional(bool state);
 	static void HandleInput(const rtmidi::message &message, void *userData);
 	void TriggerInputCommand(MidiHook *hook, int midiVal);
-	void SendMessage(std::string names, std::string mType, int mIndex,
+	void SendMessage(QString names, QString mType, int mIndex,
 			 int channel);
-	vector<MidiHook *> GetMidiHooks();
+	QVector<MidiHook *> GetMidiHooks();
 	void AddMidiHook(MidiHook *hook);
 	void RemoveMidiHook(MidiHook *hook);
 	void ClearMidiHooks();
@@ -130,11 +127,11 @@ signals:
 				   int channel);
 
 private:
-	void send(string type, int channel, int norc, int value = 0);
+	void send(QString type, int channel, int norc, int value = 0);
 	rtmidi::midi_in *midiin;
 	rtmidi::midi_out *midiout;
-	string name;
-	string outname;
+	QString name;
+	QString outname;
 	bool sending;
 	int port;
 	int lastscenebtn;
@@ -142,5 +139,5 @@ private:
 	bool connected;
 	bool bidirectional;
 	bool closing = false;
-	vector<MidiHook *> midiHooks;
+	QVector<MidiHook *> midiHooks;
 };

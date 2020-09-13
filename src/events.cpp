@@ -252,14 +252,14 @@ void events::FrontendEventHandler(enum obs_frontend_event event,
 void events::broadcastUpdate(const char *updateType,
 			     obs_data_t *additionalFields = nullptr)
 {
-	optional<uint64_t> streamTime;
+	std::optional<uint64_t> streamTime;
 	if (obs_frontend_streaming_active()) {
-		streamTime = make_optional(getStreamingTime());
+		streamTime = std::make_optional(getStreamingTime());
 	}
 
-	optional<uint64_t> recordingTime;
+	std::optional<uint64_t> recordingTime;
 	if (obs_frontend_recording_active()) {
-		recordingTime = make_optional(getRecordingTime());
+		recordingTime = std::make_optional(getRecordingTime());
 	}
 
 	RpcEvent event(QString(updateType), streamTime, recordingTime,

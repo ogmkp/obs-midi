@@ -16,16 +16,26 @@ set(MACOS_BUNDLEID "com.example.obs-midi")
 set(LINUX_MAINTAINER_EMAIL "cpyarger@gmail.com")
 
 # TAKE NOTE: No need to edit things past this point
+#################
+# THE GOOD STUFF #
+##################
 
+# RTMIDI
+add_subdirectory(src/RtMidi17)
+set(obs-midi_DEPS RtMidi17)
+include_directories(src/RtMidi17)
+
+
+add_definitions(-DASIO_STANDALONE)
+
+# OBS MIDI
 set(CMAKE_PREFIX_PATH "${QTDIR}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-# In case you need C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 if (WIN32 OR APPLE)
 include(external/FindLibObs.cmake)
 endif()
@@ -60,17 +70,6 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/version.h
 )
 
-
-##################
-# THE GOOD STUFF #
-##################
-
-# RTMIDI
-add_subdirectory(src/RtMidi17)
-set(obs-midi_DEPS RtMidi17)
-include_directories(src/RtMidi17)
-
-
 set(PLUGIN_SOURCES
 	src/utils.cpp
 	src/config.cpp
@@ -95,7 +94,7 @@ list(APPEND PLUGIN_HEADERS
 
 
 # --- End of section ---
-add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS})
+add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS} ${plugin_ui_headers})
 
 include_directories(
 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
@@ -107,6 +106,7 @@ include_directories(
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
     "${OBS_FRONTEND_LIB}"
+	RtMidi17
 	libobs
 	Qt5::Core
 	Qt5::Widgets
@@ -184,7 +184,7 @@ if(WIN32)
                 "../build/rundir/Debug/obs-plugins/64bit/"
         )
 
-       
+
 
     )
 	# --- End of sub-section ---

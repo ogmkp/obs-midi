@@ -17,11 +17,8 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
 #pragma once
-#if __has_include(<obs-frontend-api.h>)
 #include "rtmidi17/rtmidi17.hpp"
-#else
-#include "RtMidi17/rtmidi17.hpp"
-#endif
+
 #include <stdio.h>
 #include <iostream>
 #include <vector>
@@ -44,10 +41,10 @@ namespace Utils {
 // MIDI Utils
 float mapper(int x);
 int mapper2(double x);
-bool is_number(const std::string &s);
-std::string getMidiMessageType(int in);
-std::vector<const char *> GetVideoSourceNames();
-std::vector<const char *> GetAudioSourceNames();
+bool is_number(const QString &s);
+QString getMidiMessageType(int in);
+QStringList GetVideoSourceNames();
+QStringList GetAudioSourceNames();
 
 obs_data_array_t *StringListToArray(char **strings, const char *key);
 obs_data_array_t *GetSceneItems(obs_source_t *source);
@@ -96,7 +93,7 @@ bool IsRPHotkeySet();
 const char *GetFilenameFormatting();
 bool SetFilenameFormatting(const char *filenameFormatting);
 bool inrange(int low, int high, int x);
-std::string mtype_to_string(rtmidi::message_type);
+QString mtype_to_string(rtmidi::message_type);
 
 int get_midi_note_or_control(rtmidi::message mess);
 int get_midi_value(rtmidi::message mess);
