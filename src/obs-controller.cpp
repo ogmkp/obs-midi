@@ -29,9 +29,9 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 /**
  * Sets the currently active scene
  */
-void OBSController::SetCurrentScene(const char *sceneName)
+void OBSController::SetCurrentScene(QString sceneName)
 {
-	OBSSourceAutoRelease source = obs_get_source_by_name(sceneName);
+	OBSSourceAutoRelease source = obs_get_source_by_name(sceneName.toStdString().c_str());
 
 	if (source) {
 		obs_frontend_set_current_scene(source);
@@ -43,7 +43,7 @@ void OBSController::SetCurrentScene(const char *sceneName)
 /**
  * Sets the scene in preview. Must be in Studio mode or will throw error
  */
-void OBSController::SetPreviewScene(const char *sceneName)
+void OBSController::SetPreviewScene(QString sceneName)
 {
 	if (!obs_frontend_preview_program_mode_active()) {
 		throw("studio mode not enabled");
@@ -72,7 +72,7 @@ void OBSController::SetCurrentSceneCollection(QString sceneCollection)
 /**
 * Reset a scene item.
 */
-void OBSController::ResetSceneItem(const char *sceneName, const char *itemName)
+void OBSController::ResetSceneItem(QString sceneName, QString itemName)
 {
 	OBSScene scene = Utils::GetSceneFromNameOrCurrent(sceneName);
 	if (!scene) {
@@ -80,7 +80,7 @@ void OBSController::ResetSceneItem(const char *sceneName, const char *itemName)
 	}
 
 	obs_data_t *params = obs_data_create();
-	obs_data_set_string(params, "scene-name", sceneName);
+	obs_data_set_string(params, "scene-name", sceneName.toStdString().c_str());
 	OBSDataItemAutoRelease itemField = obs_data_item_byname(params, "item");
 
 	OBSSceneItemAutoRelease sceneItem =
@@ -373,7 +373,7 @@ void OBSController::SetSyncOffset(QString sourceName, int64_t sourceSyncOffset)
 	}
 
 	OBSSourceAutoRelease source =
-		obs_get_source_by_name(sourceName.toUtf8());
+		obs_get_source_by_name(sourceName.toStdString().c_str());
 	if (!source) {
 		throw("specified source doesn't exist");
 	}
@@ -381,7 +381,7 @@ void OBSController::SetSyncOffset(QString sourceName, int64_t sourceSyncOffset)
 	obs_source_set_sync_offset(source, sourceSyncOffset);
 }
 
-void OBSController::SetSourcePosition() {}
+void OBSController::SetSourcePosition() {
 
 void OBSController::SetSourceRotation() {}
 

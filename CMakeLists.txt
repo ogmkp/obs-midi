@@ -75,7 +75,6 @@ set(PLUGIN_SOURCES
 	src/config.cpp
 	src/midi-agent.cpp
 	src/device-manager.cpp
-	src/obs-controller.cpp
 	src/forms/plugin-window.cpp
 	src/obs-midi.cpp
 	src/events.cpp
@@ -86,7 +85,6 @@ list(APPEND PLUGIN_HEADERS
 	src/config.h
 	src/midi-agent.h
 	src/device-manager.h
-	src/obs-controller.h
     src/forms/plugin-window.hpp
 	src/obs-midi.h
 	src/events.h

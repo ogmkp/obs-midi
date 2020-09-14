@@ -1,5 +1,4 @@
-/*
-obs-websocket
+/*obs-websocket
 Copyright (C) 2016-2020	Stéphane Lepin <stephane.lepin@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
@@ -18,36 +17,30 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #pragma once
 
-#include <optional>
-#include <obs-data.h>
 #include <QtCore/QString>
+#include <obs-data.h>
+#include <optional>
 
 #include "../obs-midi.h"
 
 class RpcEvent {
 public:
-	explicit RpcEvent(const QString &updateType,
-			  std::optional<uint64_t> streamTime,
-			  std::optional<uint64_t> recordingTime,
-			  obs_data_t *additionalFields = nullptr);
+  explicit RpcEvent(const QString &updateType,
+                    std::optional<uint64_t> streamTime,
+                    std::optional<uint64_t> recordingTime,
+                    obs_data_t *additionalFields = nullptr);
 
-	const QString &updateType() const { return _updateType; }
+  const QString &updateType() const { return _updateType; }
 
-	const std::optional<uint64_t> streamTime() const { return _streamTime; }
+  const std::optional<uint64_t> streamTime() const { return _streamTime; }
 
-	const std::optional<uint64_t> recordingTime() const
-	{
-		return _recordingTime;
-	}
+  const std::optional<uint64_t> recordingTime() const { return _recordingTime; }
 
-	const OBSData additionalFields() const
-	{
-		return OBSData(_additionalFields);
-	}
+  const OBSData additionalFields() const { return OBSData(_additionalFields); }
 
 private:
-	QString _updateType;
-	std::optional<uint64_t> _streamTime;
-	std::optional<uint64_t> _recordingTime;
-	OBSDataAutoRelease _additionalFields;
+  QString _updateType;
+  std::optional<uint64_t> _streamTime;
+  std::optional<uint64_t> _recordingTime;
+  OBSDataAutoRelease _additionalFields;
 };

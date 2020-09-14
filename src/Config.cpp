@@ -16,12 +16,9 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#if __has_include(<obs-frontend-api.h>)
 
 #include <obs-frontend-api.h>
-#else
-#include <obs-frontend-api/obs-frontend-api.h>
-#endif
+
 
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QTime>
@@ -53,6 +50,7 @@ Config::Config()
 
 Config::~Config()
 {
+	
 	obs_frontend_remove_event_callback(OnFrontendEvent, this);
 }
 
@@ -61,7 +59,7 @@ Config::~Config()
 void Config::Load()
 {
 	SetDefaults();
-	config_t *obsConfig = GetConfigStore();
+	obsConfig = GetConfigStore();
 
 	DebugEnabled = config_get_bool(obsConfig, SECTION_NAME, PARAM_DEBUG);
 	AlertsEnabled = config_get_bool(obsConfig, SECTION_NAME, PARAM_ALERT);

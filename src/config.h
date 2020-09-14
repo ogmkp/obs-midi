@@ -23,26 +23,26 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #else
 #include <obs-frontend-api/obs-frontend-api.h>
 #endif
-#include <util/config-file.h>
-#include <QtCore/QString>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QString>
+#include <util/config-file.h>
 #include <vector>
-
 
 class Config {
 public:
-	Config();
-	~Config();
-	void Load();
-	void Save();
-	void SetDefaults();
-	config_t *GetConfigStore();
+  Config();
+  ~Config();
+  void Load();
+  void Save();
+  void SetDefaults();
+  config_t *GetConfigStore();
 
-	bool DebugEnabled;
-	bool AlertsEnabled;
+  bool DebugEnabled;
+  bool AlertsEnabled;
 
-	bool SettingsLoaded;
+  bool SettingsLoaded;
 
 private:
-	static void OnFrontendEvent(enum obs_frontend_event event, void *param);
+  config_t *obsConfig;
+  static void OnFrontendEvent(enum obs_frontend_event event, void *param);
 };

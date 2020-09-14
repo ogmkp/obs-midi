@@ -15,26 +15,22 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#include <obs-frontend-api.h>
-
-#include <QtCore/QTime>
-#include <QDebug>
-//#include <Python.h>
+#include "midi-agent.h"
 #include "config.h"
 #include "device-manager.h"
-#include "midi-agent.h"
-#include "obs-controller.h"
 #include "obs-midi.h"
 #include "utils.h"
+#include <QDebug>
+#include <QtCore/QTime>
 #include <functional>
-#include <iostream>
 #include <map>
+#include <obs-frontend-api.h>
 #include <string>
 
 ///////////////////////
 /* MIDI HOOK ROUTES */
 //////////////////////
-
+/*
 // BUTTON ACTIONS
 QMap<QString, std::function<void(MidiHook *hook, int midiVal)>> funcMap = {
     {"Set Current Scene",
@@ -57,7 +53,7 @@ QMap<QString, std::function<void(MidiHook *hook, int midiVal)>> funcMap = {
      }},
     {"TransitionToProgram",
      [](MidiHook *hook, int midiVal) {
-      
+
      }},
     {"Set Current Transition",
      [](MidiHook *hook, int midiVal) {
@@ -72,9 +68,11 @@ QMap<QString, std::function<void(MidiHook *hook, int midiVal)>> funcMap = {
        }
      }},
     {"Toggle Mute",
-     [](MidiHook *hook, int midiVal) { OBSController::ToggleMute(hook->param1); }},
+     [](MidiHook *hook, int midiVal) { OBSController::ToggleMute(hook->param1);
+}},
     {"Set Mute", [](MidiHook *hook,
-                    int midiVal) { OBSController::SetMute(hook->param1, midiVal); }},
+                    int midiVal) { OBSController::SetMute(hook->param1,
+midiVal); }},
     {"Start Stop Streaming",
      [](MidiHook *hook, int midiVal) { OBSController::StartStopStreaming(); }},
     {"Start Streaming",
@@ -125,13 +123,13 @@ QMap<QString, std::function<void(MidiHook *hook, int midiVal)>> funcMap = {
     {"Set Volume",
      [](MidiHook *hook, int midiVal) {
                  OBSController::SetVolume(hook->param1,
-					  pow(Utils::mapper(midiVal), 3.0));
+                                          pow(Utils::mapper(midiVal), 3.0));
      }},
     {"Set Sync Offset",
      [](MidiHook *hook, int midiVal) {
                  OBSController::SetSyncOffset(
-			 hook->param1,
-			 (int64_t)midiVal);
+                         hook->param1,
+                         (int64_t)midiVal);
      }},
     {"Set Source Position",
      [](MidiHook *hook, int midiVal) { OBSController::SetSourcePosition(); }},
@@ -143,7 +141,7 @@ QMap<QString, std::function<void(MidiHook *hook, int midiVal)>> funcMap = {
      [](MidiHook *hook, int midiVal) { OBSController::SetGainFilter(); }},
     {"Set Opacity",
      [](MidiHook *hook, int midiVal) { OBSController::SetOpacity(); }}};
-
+     */
 ////////////////
 // MIDI AGENT //
 ////////////////
@@ -301,7 +299,7 @@ void MidiAgent::HandleInput(const rtmidi::message &message, void *userData) {
 void MidiAgent::TriggerInputCommand(MidiHook *hook, int midiVal) {
   qDebug() << "Triggered: %d [%d] %s %s" << hook->index << midiVal
            << hook->command << hook->param1;
-  funcMap[hook->command](hook, midiVal);
+  // funcMap[hook->command](hook, midiVal);
 }
 
 /* Get the midi hooks for this device
@@ -367,7 +365,8 @@ void MidiAgent::NewObsEvent(QString eventType, QString eventData) {
       double vol = obs_data_get_double(data, "volume");
       uint8_t newvol = Utils::mapper2(cbrt(vol));
       QString source = obs_data_get_string(data, "sourceName");
-      qDebug()<<"OBS EVENT "<< eventType<<" "<<source<<" "<< vol<< " "<<newvol;
+      qDebug() << "OBS EVENT " << eventType << " " << source << " " << vol
+               << " " << newvol;
       for (unsigned i = 0; i < self->midiHooks.size(); i++) {
         if (self->midiHooks.at(i)->command == "Set Volume" &&
             self->midiHooks.at(i)->param1 == source) {

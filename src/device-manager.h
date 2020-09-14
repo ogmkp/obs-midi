@@ -18,41 +18,41 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #pragma once
 
-#include <obs-frontend-api.h>
-#include <optional>
-#include <util/config-file.h>
-#include <set>
-#include <QObject>
-#include <vector>
 #include "midi-agent.h"
 #include "rpc/RpcEvent.h"
+#include <QObject>
+#include <obs-frontend-api.h>
+#include <optional>
+#include <set>
+#include <util/config-file.h>
+#include <vector>
 
 class DeviceManager : public QObject {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	DeviceManager();
-	~DeviceManager();
-	void Load(obs_data_t *data);
+  DeviceManager();
+  ~DeviceManager();
+  void Load(obs_data_t *data);
 
-	QStringList GetPortsList();
-	int GetPortNumberByDeviceName(QString deviceName);
-	QStringList GetOutPortsList();
-	int GetOutPortNumberByDeviceName(QString deviceName);
-	QStringList opl;
-	QVector<MidiAgent *> GetActiveMidiDevices();
-	MidiAgent *GetMidiDeviceByName(QString deviceName);
-	QVector<MidiHook *> GetMidiHooksByDeviceName(QString deviceName);
-	QStringList GetOPL();
-	void RegisterMidiDevice(int port, int outport);
-	void SendMidi(QString mtype, int channel, int norc, int value);
-	obs_data_t *GetData();
-	void broadcast(const RpcEvent &event);
+  QStringList GetPortsList();
+  int GetPortNumberByDeviceName(QString deviceName);
+  QStringList GetOutPortsList();
+  int GetOutPortNumberByDeviceName(QString deviceName);
+  QStringList opl;
+  QVector<MidiAgent *> GetActiveMidiDevices();
+  MidiAgent *GetMidiDeviceByName(QString deviceName);
+  QVector<MidiHook *> GetMidiHooksByDeviceName(QString deviceName);
+  QStringList GetOPL();
+  void RegisterMidiDevice(int port, int outport);
+  void SendMidi(QString mtype, int channel, int norc, int value);
+  obs_data_t *GetData();
+  void broadcast(const RpcEvent &event);
 signals:
-	void bcast(QString updateType, QString eventData);
+  void bcast(QString updateType, QString eventData);
 
 private:
-	rtmidi::midi_in *rtMidi;
-	rtmidi::midi_out *MO;
+  rtmidi::midi_in *rtMidi;
+  rtmidi::midi_out *MO;
 
-	QVector<MidiAgent *> midiAgents;
-};    
+  QVector<MidiAgent *> midiAgents;
+};

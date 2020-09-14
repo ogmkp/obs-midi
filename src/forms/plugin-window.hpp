@@ -29,6 +29,8 @@ public:
 	void ShowPair(QString Pair);
 	void HidePair(QString Pair);
 	void HideAllPairs();
+	void add_midi_device(QString Name);
+	void set_headers();
 public slots:
 	void SetStatus(QString label,QString Status);
 	QLabel* GetLabel(QString label);
