@@ -15,7 +15,6 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #include <obs-frontend-api.h>
 
-#include "../device-manager.h"
 #include "../obs-midi.h"
 #include "plugin-window.hpp"
 #include <obs-data.h>
@@ -26,24 +25,9 @@ PluginWindow::PluginWindow(QWidget *parent) : ui(new Ui::PluginWindow) {
   blog(LOG_DEBUG, "Plugin window started");
   SetStatus("input", "Error");
   SetStatus("output", "Connected");
-  SetAvailableDevices();
 
 }
-void PluginWindow::SetAvailableDevices() {
-  QStringList midiDevices = GetDeviceManager()->GetPortsList();
-  this->ui->tableWidget->clear();
-  if (midiDevices.size() == 0) {
-    this->ui->tableWidget->insertRow(0);
-    QTableWidgetItem *n = new QTableWidgetItem();
-    n->setText("No Devices Available");
-    this->ui->tableWidget->setItem(0, 0, n);
-  }
 
-  for (int i = 0; i < midiDevices.size(); i++) {
-      add_midi_device(midiDevices.at(i));
-  }
-  set_headers();
-}
 void PluginWindow::add_midi_device(QString name) {
     QTableWidgetItem* n = new QTableWidgetItem();
     QTableWidgetItem* n2 = new QTableWidgetItem();
@@ -51,25 +35,23 @@ void PluginWindow::add_midi_device(QString name) {
     QTableWidgetItem* n4 = new QTableWidgetItem();
     QTableWidgetItem* n5 = new QTableWidgetItem();
     QTableWidgetItem* n6 = new QTableWidgetItem();
-    int rowcount = this->ui->tableWidget->rowCount();
-    this->ui->tableWidget->insertRow(rowcount);
+    int rowcount = this->ui->table_device->rowCount();
+    this->ui->table_device->insertRow(rowcount);
     n->setText(name);
     n2->setText(QString("Disconnected"));
     n2->setTextColor("grey");
-    n3->setCheckState(Qt::Checked);
+    n3->setCheckState(Qt::Unchecked);
     n4->setCheckState(Qt::Unchecked);
     n5->setText(QString("unset"));
-    this->ui->tableWidget->setItem(rowcount, 0, n);
-    this->ui->tableWidget->setItem(rowcount, 1, n2);
-    this->ui->tableWidget->setItem(rowcount, 2, n3);
-    this->ui->tableWidget->setItem(rowcount, 3, n4);
-    this->ui->tableWidget->setItem(rowcount, 4, n5);
-    this->ui->tableWidget->setItem(rowcount, 5, n6);
-
-
+    this->ui->table_device->setItem(rowcount, 0, n);
+    this->ui->table_device->setItem(rowcount, 1, n2);
+    this->ui->table_device->setItem(rowcount, 2, n3);
+    this->ui->table_device->setItem(rowcount, 3, n4);
+    this->ui->table_device->setItem(rowcount, 4, n5);
+    this->ui->table_device->setItem(rowcount, 5, n6);
 }
 void PluginWindow::set_headers() {
-    ui->tableWidget->setHorizontalHeaderLabels({ "Name","Status","Enabled","Feedback Enabled","Feedback Port" });
+    ui->table_device->setHorizontalHeaderLabels({ "Name","Status","Enabled","Feedback Enabled","Feedback Port" });
 }
 PluginWindow::~PluginWindow() { delete ui; }
 
@@ -169,8 +151,8 @@ void PluginWindow::SetStatus(QString Label, QString Status) {
 }
 QLabel *PluginWindow::GetLabel(QString label) {
   if (label == "input") {
-    return ui->lbl_input;
+    return ui->lbl_status_input;
   } else if (label == "output") {
-    return ui->lbl_output;
+    return ui->lbl_status_output;
   }
 }

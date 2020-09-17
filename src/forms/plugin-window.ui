@@ -23,7 +23,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_device">
       <attribute name="title">
@@ -34,7 +34,7 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item row="0" column="0">
-        <widget class="QTableWidget" name="tableWidget">
+        <widget class="QTableWidget" name="table_device">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -128,7 +128,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLabel" name="lbl_input">
+           <widget class="QLabel" name="lbl_status_input">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -153,7 +153,7 @@
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="check_endable_device">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -175,7 +175,7 @@
            </widget>
           </item>
           <item row="4" column="1">
-           <widget class="QCheckBox" name="checkBox_2">
+           <widget class="QCheckBox" name="check_enable_feedback">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -239,7 +239,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLabel" name="lbl_dname">
+           <widget class="QLabel" name="lbl_device_name">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -270,7 +270,7 @@
              <string>Enable Device</string>
             </property>
             <property name="buddy">
-             <cstring>checkBox</cstring>
+             <cstring>check_endable_device</cstring>
             </property>
            </widget>
           </item>
@@ -282,7 +282,7 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLabel" name="lbl_output">
+           <widget class="QLabel" name="lbl_status_output">
             <property name="autoFillBackground">
              <bool>true</bool>
             </property>
@@ -308,7 +308,7 @@
       </attribute>
       <layout class="QFormLayout" name="formLayout_11">
        <item row="0" column="0" colspan="2">
-        <widget class="QTableWidget" name="tableWidget_2">
+        <widget class="QTableWidget" name="table_mapping">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -379,8 +379,8 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>0</width>
-              <height>15</height>
+              <width>338</width>
+              <height>300</height>
              </size>
             </property>
             <property name="frameShape">
@@ -407,7 +407,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLabel" name="label_5">
+              <widget class="QLabel" name="mapping_lbl_device_name">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -591,7 +591,7 @@
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
-               <widget class="QSlider" name="horizontalSlider_2">
+               <widget class="QSlider" name="slider_value">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -614,7 +614,7 @@
                  <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
-               <widget class="QSpinBox" name="sb_value_2">
+               <widget class="QSpinBox" name="spinbox_value">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -659,7 +659,7 @@
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QPushButton" name="Btn_Listen_many">
+              <widget class="QPushButton" name="btn_Listen_many">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -706,6 +706,12 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>300</height>
+             </size>
             </property>
             <property name="maximumSize">
              <size>
@@ -1248,7 +1254,7 @@
  </resources>
  <connections>
   <connection>
-   <sender>checkBox_2</sender>
+   <sender>check_enable_feedback</sender>
    <signal>clicked(bool)</signal>
    <receiver>cb_output_devices</receiver>
    <slot>setEnabled(bool)</slot>

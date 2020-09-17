@@ -72,23 +72,15 @@ configure_file(
 
 set(PLUGIN_SOURCES
 	src/utils.cpp
-	src/config.cpp
-	src/midi-agent.cpp
-	src/device-manager.cpp
 	src/forms/plugin-window.cpp
 	src/obs-midi.cpp
-	src/events.cpp
-	src/rpc/RpcEvent.cpp)
+)
 
 list(APPEND PLUGIN_HEADERS
     src/utils.h
-	src/config.h
-	src/midi-agent.h
-	src/device-manager.h
     src/forms/plugin-window.hpp
 	src/obs-midi.h
-	src/events.h
-	src/rpc/RpcEvent.h)
+)
 
 
 # --- End of section ---

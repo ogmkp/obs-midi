@@ -23,13 +23,13 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <obs.hpp>
 #include <util/platform.h>
 
-#include "config.h"
 #include "obs-midi.h"
+#include <obs-data.h>
 #include "utils.h"
 #include <QDir>
 #include <QMainWindow>
 #include <QUrl>
-
+#include <obs-config.h>
 float Utils::mapper(int x)
 
 {
@@ -777,32 +777,11 @@ QString Utils::OBSVersionString() {
   return result;
 }
 
-QSystemTrayIcon *Utils::GetTrayIcon() {
-  QMainWindow *main = (QMainWindow *)obs_frontend_get_main_window();
-  if (!main)
-    return nullptr;
-
-  QList<QSystemTrayIcon *> trays = main->findChildren<QSystemTrayIcon *>();
-  return trays.isEmpty() ? nullptr : trays.first();
-}
-
-void Utils::SysTrayNotify(QString text, QSystemTrayIcon::MessageIcon icon,
-                          QString title) {
-  if (!GetConfig()->AlertsEnabled ||
-      !QSystemTrayIcon::isSystemTrayAvailable() ||
-      !QSystemTrayIcon::supportsMessages()) {
-    return;
-  }
-
-  QSystemTrayIcon *trayIcon = GetTrayIcon();
-  if (trayIcon)
-    trayIcon->showMessage(title, text, icon);
-}
-
+/*
 const char *Utils::GetRecordingFolder() {
   config_t *profile = obs_frontend_get_profile_config();
   QString outputMode = config_get_string(profile, "Output", "Mode");
-
+  
   if (outputMode == "Advanced") {
     // Advanced mode
     return config_get_string(profile, "AdvOut", "RecFilePath");
@@ -825,7 +804,7 @@ bool Utils::SetRecordingFolder(const char *path) {
   config_save(profile);
   return true;
 }
-
+*/
 QString Utils::ParseDataToQueryString(obs_data_t *data) {
   if (!data)
     return QString();
@@ -906,7 +885,7 @@ obs_hotkey_t *Utils::FindHotkeyByName(QString name) {
 
   return search.result;
 }
-
+/*
 bool Utils::ReplayBufferEnabled() {
   config_t *profile = obs_frontend_get_profile_config();
   QString outputMode = config_get_string(profile, "Output", "Mode");
@@ -919,7 +898,7 @@ bool Utils::ReplayBufferEnabled() {
 
   return false;
 }
-
+*/
 void Utils::StartReplayBuffer() {
   if (obs_frontend_replay_buffer_active())
     return;
@@ -957,7 +936,7 @@ bool Utils::IsRPHotkeySet() {
   size_t count = obs_data_array_count(bindings);
   return (count > 0);
 }
-
+/*
 const char *Utils::GetFilenameFormatting() {
   config_t *profile = obs_frontend_get_profile_config();
   return config_get_string(profile, "Output", "FilenameFormatting");
@@ -970,7 +949,7 @@ bool Utils::SetFilenameFormatting(const char *filenameFormatting) {
   config_save(profile);
   return true;
 }
-
+*/
 // Transform properties copy-pasted from WSRequestHandler_SceneItems.cpp because
 // typedefs can't be extended yet
 

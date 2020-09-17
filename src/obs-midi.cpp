@@ -9,11 +9,7 @@
 #include "forms/plugin-window.hpp"
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMainWindow>
-#include "config.h"
-#include "device-manager.h"
 #include "utils.h"
-#include "midi-agent.h"
-#include "events.h"
 
 void ___source_dummy_addref(obs_source_t *) {}
 void ___sceneitem_dummy_addref(obs_sceneitem_t *) {}
@@ -29,24 +25,13 @@ void ___data_item_release(obs_data_item_t *dataItem)
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("obs-midi", "en-US")
-ConfigPtr _config;
-DeviceManagerPtr _deviceManager;
 
-eventsPtr _eventsSystem;
 
 bool obs_module_load(void)
 {
 	blog(LOG_INFO, "MIDI LOADED ");
 
 	// Device Manager Setup
-	_deviceManager = DeviceManagerPtr(new DeviceManager());
-
-	// Config Setup
-	_config = ConfigPtr(new Config());
-	_config->Load();
-
-	// Signal Router Setup
-	_eventsSystem = eventsPtr(new events(_deviceManager));
 
 	// UI SETUP
 	QMainWindow *mainWindow = (QMainWindow *)obs_frontend_get_main_window();
@@ -72,27 +57,7 @@ bool obs_module_load(void)
 
 void obs_module_unload()
 {
-	_config.reset();
-	_eventsSystem.reset();
-	_deviceManager.reset();
 	
 
 	blog(LOG_INFO, "goodbye!");
 }
-
-ConfigPtr GetConfig()
-{
-	return _config;
-}
-
-DeviceManagerPtr GetDeviceManager()
-{
-	return _deviceManager;
-}
-
-eventsPtr GetEventsSystem()
-{
-	return _eventsSystem;
-}
-
-
