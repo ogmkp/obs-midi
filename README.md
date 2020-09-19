@@ -1,61 +1,56 @@
-# OBS Plugin Template
+# OBS-MIDI
 
-## Introduction
 
-This plugin is meant to make it easy to quickstart development of new OBS plugins. It includes:
+Use MIDI devices to trigger events in OBS and visa versa.
 
-- The CMake project file
-- Boilerplate plugin source code
-- A continuous-integration configuration for automated builds (a.k.a Build Bot)
 
-## Configuring
 
-Open `CMakeLists.txt` and edit the following lines at the beginning:
+# Status -- WIP
+## Windows
+[![Build Status](https://dev.azure.com/cpyarger0055/OBS-Midi/_apis/build/status/OBS-Midi?branchName=master&jobName=Build_Windows)](https://dev.azure.com/cpyarger0055/OBS-Midi/_build/latest?definitionId=5&branchName=master)
+## macOS
+[![Build Status](https://dev.azure.com/cpyarger0055/OBS-Midi/_apis/build/status/OBS-Midi?branchName=master&jobName=Build_macOS)](https://dev.azure.com/cpyarger0055/OBS-Midi/_build/latest?definitionId=5&branchName=master)
+## Linux
+[![Build Status](https://dev.azure.com/cpyarger0055/OBS-Midi/_apis/build/status/OBS-Midi?branchName=master&jobName=Build_Linux)](https://dev.azure.com/cpyarger0055/OBS-Midi/_build/latest?definitionId=5&branchName=master)
+# Installing
 
-```cmake
-# Change `obs-plugintemplate` to your plugin's name in a machine-readable format
-# (e.g.: obs-myawesomeplugin) and set the value next to `VERSION` as your plugin's current version
-project(obs-plugintemplate VERSION 1.0.0)
 
-# Replace `Your Name Here` with the name (yours or your organization's) you want
-# to see as the author of the plugin (in the plugin's metadata itself and in the installers)
-set(PLUGIN_AUTHOR "Your Name Here")
+1. Grab the zip from the [OBS-Midi Releases Page](https://github.com/Alzy/obs-midi/releases/tag/v0.1.0)
 
-# Replace `com.example.obs-plugin-template` with a unique Bundle ID for macOS releases
-# (used both in the installer and when submitting the installer for notarization)
-set(MACOS_BUNDLEID "com.example.obs-plugintemplate")
+2. Copy the files in the zip to  your obs plugins directory.
 
-# Replace `me@contoso.com` with the maintainer email address you want to put in Linux packages
-set(LINUX_MAINTAINER_EMAIL "me@contoso.com")
-```
+  * By Default this is C:\Program Files\obs-studio\obs-plugins\64bit
 
-## CI / Build Bot
+3. Launch OBS
 
-The CI scripts are made for Azure Pipelines. The sections below detail some of the common tasks possible with that CI configuration.
+  * The Configuration is under Tools-> OBS Midi Settings
 
-### Retrieving build artifacts
+  * Select your controller, hit configure, Toggle a button and fader, remap it to an action and hit save!
 
-Each build produces installers and packages that you can use for testing and releases. These artifacts can be found a Build's page on Azure Pipelines.
 
-#### Building a Release
 
-Simply create and push a tag, and Azure Pipelines will run the pipeline in Release Mode. This mode uses the tag as its version number instead of the git ref in normal mode.
+Currently runs on Windows and Linux, and is untested on MAC
 
-### Signing and Notarizing on macOS
 
-On macOS, Release Mode builds will be signed and sent to Apple for notarization if `macosSignAndNotarize` is set to `True` at the top of the `azure-pipelines.yml` file. **You'll need a paid Apple Developer Account for this.**
+# Build instructions
+In your obs-studio/plugins folder
+1. ```git clone --recursive https://github.com/Alzy/obs-midi.git```
+2. Append to CMakeLists.txt  
+  * ```add_subdirectory(obs-midi)```
+ Go back to your OBS Build directory
+ ## Windows
+ 1. run ```cmake-gui.exe```
+ 2. click ```configure```
+ 3. click ```generate```
+ 4. click ```open project```
+ 5. In visual studio, right click on the obs-studio solution and click build
+ ## Linux
+ 1. Rerun cmake using your normal options
+ 2. rerun ```make -j4```
+ 3. rerun ```sudo make install``` / ```sudo checkinstall```  depending on which you normally use.
+ ### [More info on building OBS from source](https://github.com/obsproject/obs-studio/wiki/install-instructions)
 
-In addition to enabling `macosSignAndNotarize`, you'll need to setup a few more things for Signing and Notarizing to work:
-
-- On your Apple Developer dashboard, go to "Certificates, IDs & Profiles" and create two signing certificates:
-    - One of the "Developer ID Application" type. It will be used to sign the plugin's binaries
-    - One of the "Developer ID Installer" type. It will be used to sign the plugin's installer
-- Using the Keychain app on macOS, export these two certificates and keys into a .p12 file **protected with a strong password**
-- Add that `Certificates.P12` file as a [Secure File in Azure Pipelines](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops) and make sure it is named `Certificates.p12`
-- Add the following secrets in your pipeline settings:
-    - `secrets.macOS.certificatesImportPassword`: Password of the .p12 file generated earlier
-    - `secrets.macOS.codeSigningIdentity`: Name of the "Developer ID Application" signing certificate generated earlier
-    - `secrets.macOS.installerSigningIdentity`: Name of "Developer ID Installer" signing certificate generated earlier
-    - `secrets.macOS.notarization.username`: Your Apple Developer Account's username
-    - `secrets.macOS.notarization.password`: Your Apple Developer Account's password
-    - `secrets.macOS.notarization.providerShortName`: Identifier (`Provider Short Name`, as Apple calls it) of the Developer Team to which the signing certificates belong. 
+ # Special thanks to the following projects
+ * [RTMidi17](https://github.com/jcelerier/RtMidi17) An amazing modernized RTMIDI library
+ * [OBSWebsocket](https://github.com/Palakis/obs-websocket/) from which much code was borrowed for interfacing with OBS
+ * [Midi2OBS](https://github.com/lebaston100/MIDItoOBS) Where I got my start playing with this
