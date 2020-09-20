@@ -16,119 +16,149 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <obs-frontend-api.h>
 
 #include "../obs-midi.h"
+#include "../utils.h"
 #include "plugin-window.hpp"
 #include <obs-data.h>
 #include <obs-module.h>
 PluginWindow::PluginWindow(QWidget *parent) : ui(new Ui::PluginWindow) {
   ui->setupUi(this);
   HideAllPairs();
+  ShowPair(pairs::Scene);
+  ShowPair(pairs::Audio);
   blog(LOG_DEBUG, "Plugin window started");
   SetStatus("input", "Error");
   SetStatus("output", "Connected");
-
 }
-
+void PluginWindow::refresh() {
+  get_scene_names();
+  ui->cb_obs_output_scene->clear();
+  ui->cb_obs_output_scene->addItems(SceneList);
+  ui->cb_obs_output_audio_source->clear();
+  ui->cb_obs_output_audio_source->addItems(Utils::GetAudioSourceNames());
+}
+void PluginWindow::get_scene_names() {
+  obs_frontend_source_list sceneList = {};
+  obs_frontend_get_scenes(&sceneList);
+  for (size_t i = 0; i < sceneList.sources.num; i++) {
+    SceneList.append(obs_source_get_name(sceneList.sources.array[i]));
+  }
+  obs_frontend_source_list_free(&sceneList);
+}
 void PluginWindow::add_midi_device(QString name) {
-    QTableWidgetItem* n = new QTableWidgetItem();
-    QTableWidgetItem* n2 = new QTableWidgetItem();
-    QTableWidgetItem* n3 = new QTableWidgetItem();
-    QTableWidgetItem* n4 = new QTableWidgetItem();
-    QTableWidgetItem* n5 = new QTableWidgetItem();
-    QTableWidgetItem* n6 = new QTableWidgetItem();
-    int rowcount = this->ui->table_device->rowCount();
-    this->ui->table_device->insertRow(rowcount);
-    n->setText(name);
-    n2->setText(QString("Disconnected"));
-    n2->setTextColor("grey");
-    n3->setCheckState(Qt::Unchecked);
-    n4->setCheckState(Qt::Unchecked);
-    n5->setText(QString("unset"));
-    this->ui->table_device->setItem(rowcount, 0, n);
-    this->ui->table_device->setItem(rowcount, 1, n2);
-    this->ui->table_device->setItem(rowcount, 2, n3);
-    this->ui->table_device->setItem(rowcount, 3, n4);
-    this->ui->table_device->setItem(rowcount, 4, n5);
-    this->ui->table_device->setItem(rowcount, 5, n6);
+  QTableWidgetItem *device_name = new QTableWidgetItem();
+  QTableWidgetItem *device_enabled = new QTableWidgetItem();
+  QTableWidgetItem *device_status = new QTableWidgetItem();
+  QTableWidgetItem *feedback_enabled = new QTableWidgetItem();
+  QTableWidgetItem *feedback_name = new QTableWidgetItem();
+  QTableWidgetItem *feedback_status = new QTableWidgetItem();
+  int rowcount = this->ui->table_device->rowCount();
+  this->ui->table_device->insertRow(rowcount);
+  device_name->setText(name);
+  device_enabled->setCheckState(Qt::Unchecked);
+  device_status->setText(QString("Disconnected"));
+  device_status->setTextColor("grey");
+  feedback_name->setText("");
+  feedback_enabled->setCheckState(Qt::Unchecked);
+  feedback_status->setText(QString("unset"));
+  this->ui->table_device->setItem(rowcount, 0, device_name);
+  this->ui->table_device->setItem(rowcount, 1, device_enabled);
+  this->ui->table_device->setItem(rowcount, 2, device_status);
+  this->ui->table_device->setItem(rowcount, 3, feedback_enabled);
+  this->ui->table_device->setItem(rowcount, 4, feedback_name);
+  this->ui->table_device->setItem(rowcount, 5, feedback_status);
 }
 void PluginWindow::set_headers() {
-    ui->table_device->setHorizontalHeaderLabels({ "Name","Status","Enabled","Feedback Enabled","Feedback Port" });
+  ui->table_device->setHorizontalHeaderLabels(
+      {"Name", "Enabled", "Status", "Feedback Enabled", "Feedback Port",
+       "Feedback Status"});
 }
 PluginWindow::~PluginWindow() { delete ui; }
 
-void PluginWindow::ShowPair(QString Pair) {
-  if (Pair == "scene") {
-    ui->label_obs_output_scene->show();
-    ui->cb_obs_output_scene->show();
-    // ui->cb_obs_output_scene->addItems(GetScenes());
-  } else if (Pair == "source") {
-    ui->label_obs_output_source->show();
-    ui->cb_obs_output_source->show();
-    // ui->cb_obs_output_source->addItems(
-    // GetSources(ui->cb_obs_output_scene->currentText()));
-  } else if (Pair == "filter") {
-    ui->label_obs_output_filter->show();
-    ui->cb_obs_output_filter->show();
-    // ui->cb_obs_output_filter->addItems(GetFilters(ui->cb_obs_output_source->currentText()));
-  } else if (Pair == "transition") {
-    ui->label_obs_output_transition->show();
-    ui->cb_obs_output_transition->show();
-
-  } else if (Pair == "item") {
-    ui->label_obs_output_item->show();
-    ui->cb_obs_output_item->show();
-
-  } else if (Pair == "audio") {
-    ui->label_obs_output_audio_source->show();
-    ui->cb_obs_output_audio_source->show();
-
-  } else if (Pair == "media") {
-    ui->label_obs_output_media_source->show();
-    ui->cb_obs_output_media_source->show();
-  }
+void PluginWindow::ShowPair(pairs Pair) {
+    switch (Pair) {
+    case pairs::Scene:
+        ui->label_obs_output_scene->show();
+        ui->cb_obs_output_scene->show();
+        break;
+    case pairs::Source:
+        ui->label_obs_output_source->show();
+        ui->cb_obs_output_source->show();
+        break;
+    case pairs::Filter:
+        ui->label_obs_output_filter->show();
+        ui->cb_obs_output_filter->show();
+        break;
+    case pairs::Transition:
+        ui->label_obs_output_transition->show();
+        ui->cb_obs_output_transition->show();
+        break;
+    case pairs::Item:
+        ui->label_obs_output_item->show();
+        ui->cb_obs_output_item->show();
+        break;
+    case pairs::Audio:
+        ui->label_obs_output_audio_source->show();
+        ui->cb_obs_output_audio_source->show();
+        break;
+    case pairs::Media:
+        ui->label_obs_output_media_source->show();
+        ui->cb_obs_output_media_source->show();
+        break;
+    }
 }
-void PluginWindow::HidePair(QString Pair) {
-  if (Pair == "scene") {
-    ui->label_obs_output_scene->hide();
-    ui->cb_obs_output_scene->hide();
-    blog(LOG_DEBUG, "Hide Scene");
-  } else if (Pair == "source") {
-    ui->label_obs_output_source->hide();
-    ui->cb_obs_output_source->hide();
-    blog(LOG_DEBUG, "Hide Source");
-  } else if (Pair == "filter") {
-    ui->label_obs_output_filter->hide();
-    ui->cb_obs_output_filter->hide();
-    blog(LOG_DEBUG, "Hide Filter");
-  } else if (Pair == "transition") {
-    ui->label_obs_output_transition->hide();
-    ui->cb_obs_output_transition->hide();
-    blog(LOG_DEBUG, "Hide Transition");
-  } else if (Pair == "item") {
-    ui->label_obs_output_item->hide();
-    ui->cb_obs_output_item->hide();
-    blog(LOG_DEBUG, "Hide Item");
-  } else if (Pair == "audio") {
-    ui->label_obs_output_audio_source->hide();
-    ui->cb_obs_output_audio_source->hide();
-    blog(LOG_DEBUG, "Hide Audio");
-  } else if (Pair == "media") {
-    ui->label_obs_output_media_source->hide();
-    ui->cb_obs_output_media_source->hide();
-    blog(LOG_DEBUG, "Hide Media");
-  }
+void PluginWindow::HidePair(pairs Pair) {
+    switch (Pair) {
+    case pairs::Scene:
+        ui->label_obs_output_scene->hide();
+        ui->cb_obs_output_scene->hide();
+        blog(LOG_DEBUG, "Hide Scene");
+        break;
+    case pairs::Source:
+        ui->label_obs_output_source->hide();
+        ui->cb_obs_output_source->hide();
+        blog(LOG_DEBUG, "Hide Source");
+        break;
+    case pairs::Filter:
+        ui->label_obs_output_filter->hide();
+        ui->cb_obs_output_filter->hide();
+        blog(LOG_DEBUG, "Hide Filter");
+        break;
+    case pairs::Transition:
+        ui->label_obs_output_transition->hide();
+        ui->cb_obs_output_transition->hide();
+        blog(LOG_DEBUG, "Hide Transition");
+        break;
+    case pairs::Item:
+        ui->label_obs_output_item->hide();
+        ui->cb_obs_output_item->hide();
+        blog(LOG_DEBUG, "Hide Item");
+        break;
+    case pairs::Audio:
+        ui->label_obs_output_audio_source->hide();
+        ui->cb_obs_output_audio_source->hide();
+        blog(LOG_DEBUG, "Hide Audio");
+        break;
+    case pairs::Media:
+        ui->label_obs_output_media_source->hide();
+        ui->cb_obs_output_media_source->hide();
+        blog(LOG_DEBUG, "Hide Media");
+        break;
+    }
 }
 void PluginWindow::HideAllPairs() {
-  HidePair("transition");
-  HidePair("audio");
-  HidePair("media");
-  HidePair("filter");
-  HidePair("scene");
-  HidePair("source");
-  HidePair("item");
+  HidePair(pairs::Transition);
+  HidePair(pairs::Audio);
+  HidePair(pairs::Media);
+  HidePair(pairs::Filter);
+  HidePair(pairs::Scene);
+  HidePair(pairs::Source);
+  HidePair(pairs::Item);
 }
+
 void PluginWindow::ToggleShowHide() {
   if (!isVisible()) {
     setVisible(true);
+    refresh();
   } else {
     setVisible(false);
   }

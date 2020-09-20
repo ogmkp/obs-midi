@@ -24,12 +24,12 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <util/platform.h>
 
 #include "obs-midi.h"
-#include <obs-data.h>
 #include "utils.h"
 #include <QDir>
 #include <QMainWindow>
 #include <QUrl>
 #include <obs-config.h>
+#include <obs-data.h>
 float Utils::mapper(int x)
 
 {
@@ -56,269 +56,6 @@ bool Utils::is_number(const QString &s) {
 bool Utils::inrange(int low, int high, int x) {
   return ((x - low) <= (high - low));
 }
-int Utils::get_midi_note_or_control(rtmidi::message mess) {
-  int bytetopullfrom = -1;
-  switch (mess.get_message_type()) {
-  case rtmidi::message_type::INVALID:
-    break;
-  case rtmidi::message_type::NOTE_OFF:
-    bytetopullfrom = 1;
-    break;
-  case rtmidi::message_type::NOTE_ON:
-    bytetopullfrom = 1;
-    break;
-  case rtmidi::message_type::PITCH_BEND:
-    bytetopullfrom = 0;
-    break;
-
-  case rtmidi::message_type::CONTROL_CHANGE:
-    bytetopullfrom = 1;
-    break;
-    /*****************Messages to work on ***************/
-  // Standard Message
-  case rtmidi::message_type::POLY_PRESSURE:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::PROGRAM_CHANGE:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::AFTERTOUCH:
-    bytetopullfrom = 0;
-    break;
-
-  // System Common Messages
-  case rtmidi::message_type::SYSTEM_EXCLUSIVE:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::TIME_CODE:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::SONG_POS_POINTER:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::SONG_SELECT:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::RESERVED1:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::RESERVED2:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::TUNE_REQUEST:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::EOX:
-    bytetopullfrom = 0;
-    break;
-
-  // System Realtime Messages
-  case rtmidi::message_type::TIME_CLOCK:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::RESERVED3:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::START:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::CONTINUE:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::STOP:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::RESERVED4:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::ACTIVE_SENSING:
-    bytetopullfrom = 0;
-    break;
-  case rtmidi::message_type::SYSTEM_RESET:
-    bytetopullfrom = 0;
-    break;
-  }
-
-  return mess[bytetopullfrom];
-}
-/// <summary>
-/// Utils::get_midi_value(rtmidi::message mess)
-///  Takes a midi Message and returns The value after determining what byte to
-///  pull the "value" from
-/// </summary>
-/// <param name="mess"></param>
-/// <returns><int></returns>
-int Utils::get_midi_value(rtmidi::message mess) {
-  int bytetopullfrom = -1;
-  switch (mess.get_message_type()) {
-  case rtmidi::message_type::INVALID:
-    break;
-
-  case rtmidi::message_type::PITCH_BEND:
-    bytetopullfrom = 1;
-    break;
-  case rtmidi::message_type::CONTROL_CHANGE:
-    bytetopullfrom = 2;
-    break;
-
-  case rtmidi::message_type::NOTE_OFF:
-    bytetopullfrom = 2;
-    break;
-  case rtmidi::message_type::NOTE_ON:
-    bytetopullfrom = 2;
-    break;
-
-  case rtmidi::message_type::POLY_PRESSURE:
-    bytetopullfrom = 2;
-    break;
-
-  case rtmidi::message_type::PROGRAM_CHANGE:
-    bytetopullfrom = 2;
-    break;
-  case rtmidi::message_type::AFTERTOUCH:
-    bytetopullfrom = 2;
-    break;
-    /*******
-    // System Common Messages
-    case rtmidi::message_type::SYSTEM_EXCLUSIVE:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::TIME_CODE:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::SONG_POS_POINTER:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::SONG_SELECT:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::RESERVED1:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::RESERVED2:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::TUNE_REQUEST:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::EOX:
-      bytetopullfrom = 0;
-      break;
-
-    // System Realtime Messages
-    case rtmidi::message_type::TIME_CLOCK:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::RESERVED3:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::START:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::CONTINUE:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::STOP:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::RESERVED4:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::ACTIVE_SENSING:
-      bytetopullfrom = 0;
-      break;
-    case rtmidi::message_type::SYSTEM_RESET:
-      bytetopullfrom = 0;
-      break;
-      */
-  }
-
-  return mess[bytetopullfrom];
-}
-
-QString Utils::mtype_to_string(rtmidi::message_type mess) {
-  switch (mess) {
-  case rtmidi::message_type::INVALID:
-    return "INVALID";
-  // Standard Message
-  case rtmidi::message_type::NOTE_OFF:
-    return "note_off";
-  case rtmidi::message_type::NOTE_ON:
-    return "note_on";
-  case rtmidi::message_type::POLY_PRESSURE:
-    return "poly_pressure";
-  case rtmidi::message_type::CONTROL_CHANGE:
-    return "control_change";
-  case rtmidi::message_type::PROGRAM_CHANGE:
-    return "program_change";
-  case rtmidi::message_type::AFTERTOUCH:
-    return "aftertouch";
-  case rtmidi::message_type::PITCH_BEND:
-    return "pitch_bend";
-  case rtmidi::message_type::SYSTEM_EXCLUSIVE:
-    return "system_exclusive";
-  case rtmidi::message_type::TIME_CODE:
-    return "time_code";
-  case rtmidi::message_type::SONG_POS_POINTER:
-    return "song_pos_pointer";
-  case rtmidi::message_type::SONG_SELECT:
-    return "song_select";
-  case rtmidi::message_type::RESERVED1:
-    return "reserved_1";
-  case rtmidi::message_type::RESERVED2:
-    return "reserved_2";
-  case rtmidi::message_type::TUNE_REQUEST:
-    return "tune_request";
-  case rtmidi::message_type::EOX:
-    return "eox";
-
-  // System Realtime Messages
-  case rtmidi::message_type::TIME_CLOCK:
-    return "time_clock";
-  case rtmidi::message_type::RESERVED3:
-    return "reserved_3";
-  case rtmidi::message_type::START:
-    return "start";
-  case rtmidi::message_type::CONTINUE:
-    return "continue";
-  case rtmidi::message_type::STOP:
-    return "stop";
-  case rtmidi::message_type::RESERVED4:
-    return "reserved_4";
-  case rtmidi::message_type::ACTIVE_SENSING:
-    return "active_sensing";
-  case rtmidi::message_type::SYSTEM_RESET:
-    return "system_reset";
-  }
-}
-
-QString Utils::getMidiMessageType(int in) {
-  // currently sets from a few  non breaking returns, will need to have message
-  // format structs to return here instead
-  if (inrange(128, 143, in)) {
-    return "note_off";
-  } else if (inrange(144, 159, in)) {
-    return "note_on";
-  } else if (inrange(176, 191, in)) {
-    return "control_change";
-  } else if (inrange(192, 207, in)) {
-    return "program_change";
-  } else if (inrange(160, 175, in)) {
-    return "poly_aftertouch";
-  } else if (inrange(176, 191, in)) {
-    return "control_change";
-  } else if (inrange(192, 207, in)) {
-    return "program_change";
-  } else if (inrange(208, 223, in)) {
-    return "chan_aftertouch";
-  } else if (inrange(224, 239, in)) {
-    return "pitch_bend";
-  } else if (inrange(240, 255, in)) {
-    return "system";
-  } else
-    return "unknown_type";
-}
-
 const QHash<obs_bounds_type, QString> boundTypeNames = {
     {OBS_BOUNDS_STRETCH, "OBS_BOUNDS_STRETCH"},
     {OBS_BOUNDS_SCALE_INNER, "OBS_BOUNDS_SCALE_INNER"},
@@ -656,8 +393,7 @@ obs_scene_t *Utils::GetSceneFromNameOrCurrent(QString sceneName) {
 obs_data_array_t *Utils::GetScenes() {
   obs_frontend_source_list sceneList = {};
   obs_frontend_get_scenes(&sceneList);
-
-  obs_data_array_t *scenes = obs_data_array_create();
+  auto scenes = obs_data_array_create();
   for (size_t i = 0; i < sceneList.sources.num; i++) {
     obs_source_t *scene = sceneList.sources.array[i];
     OBSDataAutoRelease sceneData = GetSceneData(scene);
@@ -671,7 +407,7 @@ obs_data_array_t *Utils::GetScenes() {
 obs_data_t *Utils::GetSceneData(obs_source_t *source) {
   OBSDataArrayAutoRelease sceneItems = GetSceneItems(source);
 
-  obs_data_t *sceneData = obs_data_create();
+  auto sceneData = obs_data_create();
   obs_data_set_string(sceneData, "name", obs_source_get_name(source));
   obs_data_set_array(sceneData, "sources", sceneItems);
 
@@ -781,7 +517,7 @@ QString Utils::OBSVersionString() {
 const char *Utils::GetRecordingFolder() {
   config_t *profile = obs_frontend_get_profile_config();
   QString outputMode = config_get_string(profile, "Output", "Mode");
-  
+
   if (outputMode == "Advanced") {
     // Advanced mode
     return config_get_string(profile, "AdvOut", "RecFilePath");
@@ -1190,3 +926,4 @@ QStringList Utils::GetAudioSourceNames() {
       static_cast<void *>(&sourceNames));
   return sourceNames;
 }
+

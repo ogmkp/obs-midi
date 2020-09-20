@@ -1,7 +1,6 @@
 
 #include <obs-module.h>
 #include <obs-frontend-api.h>
-#include "rtmidi17/rtmidi17.hpp"
 
 #include <obs-data.h>
 #include "obs-midi.h"

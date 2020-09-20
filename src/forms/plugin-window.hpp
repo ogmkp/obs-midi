@@ -14,29 +14,33 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
 #pragma once
-#include <vector>
+#include "ui_plugin-window.h"
 #include <QDialog>
 #include <QtWidgets>
-#include "ui_plugin-window.h"
+#include <vector>
+enum pairs { Scene, Source, Item, Transition, Audio, Media, Filter };
 
 class PluginWindow : public QDialog {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	PluginWindow(QWidget* parent);
-	void SetAvailableDevices();
-	~PluginWindow();
-	void ShowPair(QString Pair);
-	void HidePair(QString Pair);
-	void HideAllPairs();
-	void add_midi_device(QString Name);
-	void set_headers();
+  PluginWindow(QWidget *parent);
+  void SetAvailableDevices();
+  ~PluginWindow();
+  void ShowPair(pairs);
+  void HidePair(pairs);
+  void HideAllPairs();
+  void add_midi_device(QString Name);
+  void set_headers();
 public slots:
-	void SetStatus(QString label,QString Status);
-	QLabel* GetLabel(QString label);
+  void SetStatus(QString label, QString Status);
+  QLabel *GetLabel(QString label);
+  void refresh();
 private Q_SLOTS:
-	void ToggleShowHide();
-private:
-	Ui::PluginWindow* ui;
+  void ToggleShowHide();
 
+private:
+  Ui::PluginWindow *ui;
+  void get_scene_names();
+  QStringList SceneList;
 };

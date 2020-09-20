@@ -20,10 +20,7 @@ set(LINUX_MAINTAINER_EMAIL "cpyarger@gmail.com")
 # THE GOOD STUFF #
 ##################
 
-# RTMIDI
-add_subdirectory(src/RtMidi17)
-set(obs-midi_DEPS RtMidi17)
-include_directories(src/RtMidi17)
+
 
 
 add_definitions(-DASIO_STANDALONE)
@@ -96,7 +93,6 @@ include_directories(
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
     "${OBS_FRONTEND_LIB}"
-	RtMidi17
 	libobs
 	Qt5::Core
 	Qt5::Widgets

@@ -17,7 +17,6 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
 #pragma once
-#include "rtmidi17/rtmidi17.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -92,9 +91,7 @@ bool IsRPHotkeySet();
 const char *GetFilenameFormatting();
 bool SetFilenameFormatting(const char *filenameFormatting);
 bool inrange(int low, int high, int x);
-QString mtype_to_string(rtmidi::message_type);
-
-int get_midi_note_or_control(rtmidi::message mess);
-int get_midi_value(rtmidi::message mess);
+void get_scene_names();
+static QStringList sceneList;
 QString nsToTimestamp(uint64_t ns);
 };
