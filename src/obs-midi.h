@@ -2,6 +2,8 @@
 #include <QObject>
 #include <memory>
 #include <obs.hpp>
+#include "RtMidi17/message.hpp"
+#include "DeviceManager.h"
 
 void ___source_dummy_addref(obs_source_t *);
 void ___sceneitem_dummy_addref(obs_sceneitem_t *);
@@ -29,3 +31,4 @@ using OBSDataItemAutoRelease =
 
 #define OBS_MIDI_VERSION "0.1"
 #define blog(level, msg, ...) blog(level, "[obs-midi] " msg, ##__VA_ARGS__)
+

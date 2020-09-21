@@ -15,22 +15,23 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #include <obs-frontend-api.h>
 
-#include "../obs-midi.h"
-#include "../utils.h"
+
 #include "plugin-window.hpp"
-#include <obs-data.h>
-#include <obs-module.h>
+
 PluginWindow::PluginWindow(QWidget *parent) : ui(new Ui::PluginWindow) {
   ui->setupUi(this);
+  DM = new DeviceManager();
   HideAllPairs();
   ShowPair(pairs::Scene);
   ShowPair(pairs::Audio);
   blog(LOG_DEBUG, "Plugin window started");
-  SetStatus("input", "Error");
-  SetStatus("output", "Connected");
+  SetStatus("input", Status::Error);
+  SetStatus("output", Status::Connected);
 }
 void PluginWindow::refresh() {
   get_scene_names();
+  SetAvailableDevices();
+
   ui->cb_obs_output_scene->clear();
   ui->cb_obs_output_scene->addItems(SceneList);
   ui->cb_obs_output_audio_source->clear();
@@ -45,6 +46,7 @@ void PluginWindow::get_scene_names() {
   obs_frontend_source_list_free(&sceneList);
 }
 void PluginWindow::add_midi_device(QString name) {
+    blog(LOG_DEBUG, "Adding Midi Device %s", name.toStdString().c_str());
   QTableWidgetItem *device_name = new QTableWidgetItem();
   QTableWidgetItem *device_enabled = new QTableWidgetItem();
   QTableWidgetItem *device_status = new QTableWidgetItem();
@@ -75,75 +77,75 @@ void PluginWindow::set_headers() {
 PluginWindow::~PluginWindow() { delete ui; }
 
 void PluginWindow::ShowPair(pairs Pair) {
-    switch (Pair) {
-    case pairs::Scene:
-        ui->label_obs_output_scene->show();
-        ui->cb_obs_output_scene->show();
-        break;
-    case pairs::Source:
-        ui->label_obs_output_source->show();
-        ui->cb_obs_output_source->show();
-        break;
-    case pairs::Filter:
-        ui->label_obs_output_filter->show();
-        ui->cb_obs_output_filter->show();
-        break;
-    case pairs::Transition:
-        ui->label_obs_output_transition->show();
-        ui->cb_obs_output_transition->show();
-        break;
-    case pairs::Item:
-        ui->label_obs_output_item->show();
-        ui->cb_obs_output_item->show();
-        break;
-    case pairs::Audio:
-        ui->label_obs_output_audio_source->show();
-        ui->cb_obs_output_audio_source->show();
-        break;
-    case pairs::Media:
-        ui->label_obs_output_media_source->show();
-        ui->cb_obs_output_media_source->show();
-        break;
-    }
+  switch (Pair) {
+  case pairs::Scene:
+    ui->label_obs_output_scene->show();
+    ui->cb_obs_output_scene->show();
+    break;
+  case pairs::Source:
+    ui->label_obs_output_source->show();
+    ui->cb_obs_output_source->show();
+    break;
+  case pairs::Filter:
+    ui->label_obs_output_filter->show();
+    ui->cb_obs_output_filter->show();
+    break;
+  case pairs::Transition:
+    ui->label_obs_output_transition->show();
+    ui->cb_obs_output_transition->show();
+    break;
+  case pairs::Item:
+    ui->label_obs_output_item->show();
+    ui->cb_obs_output_item->show();
+    break;
+  case pairs::Audio:
+    ui->label_obs_output_audio_source->show();
+    ui->cb_obs_output_audio_source->show();
+    break;
+  case pairs::Media:
+    ui->label_obs_output_media_source->show();
+    ui->cb_obs_output_media_source->show();
+    break;
+  }
 }
 void PluginWindow::HidePair(pairs Pair) {
-    switch (Pair) {
-    case pairs::Scene:
-        ui->label_obs_output_scene->hide();
-        ui->cb_obs_output_scene->hide();
-        blog(LOG_DEBUG, "Hide Scene");
-        break;
-    case pairs::Source:
-        ui->label_obs_output_source->hide();
-        ui->cb_obs_output_source->hide();
-        blog(LOG_DEBUG, "Hide Source");
-        break;
-    case pairs::Filter:
-        ui->label_obs_output_filter->hide();
-        ui->cb_obs_output_filter->hide();
-        blog(LOG_DEBUG, "Hide Filter");
-        break;
-    case pairs::Transition:
-        ui->label_obs_output_transition->hide();
-        ui->cb_obs_output_transition->hide();
-        blog(LOG_DEBUG, "Hide Transition");
-        break;
-    case pairs::Item:
-        ui->label_obs_output_item->hide();
-        ui->cb_obs_output_item->hide();
-        blog(LOG_DEBUG, "Hide Item");
-        break;
-    case pairs::Audio:
-        ui->label_obs_output_audio_source->hide();
-        ui->cb_obs_output_audio_source->hide();
-        blog(LOG_DEBUG, "Hide Audio");
-        break;
-    case pairs::Media:
-        ui->label_obs_output_media_source->hide();
-        ui->cb_obs_output_media_source->hide();
-        blog(LOG_DEBUG, "Hide Media");
-        break;
-    }
+  switch (Pair) {
+  case pairs::Scene:
+    ui->label_obs_output_scene->hide();
+    ui->cb_obs_output_scene->hide();
+    blog(LOG_DEBUG, "Hide Scene");
+    break;
+  case pairs::Source:
+    ui->label_obs_output_source->hide();
+    ui->cb_obs_output_source->hide();
+    blog(LOG_DEBUG, "Hide Source");
+    break;
+  case pairs::Filter:
+    ui->label_obs_output_filter->hide();
+    ui->cb_obs_output_filter->hide();
+    blog(LOG_DEBUG, "Hide Filter");
+    break;
+  case pairs::Transition:
+    ui->label_obs_output_transition->hide();
+    ui->cb_obs_output_transition->hide();
+    blog(LOG_DEBUG, "Hide Transition");
+    break;
+  case pairs::Item:
+    ui->label_obs_output_item->hide();
+    ui->cb_obs_output_item->hide();
+    blog(LOG_DEBUG, "Hide Item");
+    break;
+  case pairs::Audio:
+    ui->label_obs_output_audio_source->hide();
+    ui->cb_obs_output_audio_source->hide();
+    blog(LOG_DEBUG, "Hide Audio");
+    break;
+  case pairs::Media:
+    ui->label_obs_output_media_source->hide();
+    ui->cb_obs_output_media_source->hide();
+    blog(LOG_DEBUG, "Hide Media");
+    break;
+  }
 }
 void PluginWindow::HideAllPairs() {
   HidePair(pairs::Transition);
@@ -164,20 +166,79 @@ void PluginWindow::ToggleShowHide() {
   }
 }
 
-void PluginWindow::SetStatus(QString Label, QString Status) {
+void PluginWindow::SetStatus(QString Label, Status status) {
   QLabel *label = GetLabel(Label);
-  label->setText(Status);
-  if (Status == "Disconnected") {
+
+  switch (status) {
+  case Status::Disconnected:
     label->setStyleSheet("QLabel {color: rgb(255, 0, 0);}");
-  } else if (Status == "Disabled") {
+    label->setText("Disconnected");
+    break;
+  case Status::Disabled:
     label->setStyleSheet("QLabel {color: rgb(128, 128, 128);}");
-  } else if (Status == "Connected") {
+    label->setText("Disabled");
+    break;
+  case Status::Connected:
     label->setStyleSheet("QLabel {color: rgb(0,255,0);}");
-  } else if (Status == "Error") {
+    label->setText("Connected");
+    break;
+  case Status::Error:
     label->setStyleSheet("QLabel {color: rgb(255, 0, 0);}");
-  } else if (Status == "Connecting") {
+    label->setText("Error");
+    break;
+  case Status::Connecting:
     label->setStyleSheet("QLabel {color: rgb(0,0,170);}");
+    label->setText("Connecting");
+    break;
   }
+}
+QColor *PluginWindow::GetStatusColor(Status status) {
+  QColor *color = new QColor();
+  switch (status) {
+  case Status::Disconnected:
+    color->setRgb(255, 0, 0);
+    break;
+  case Status::Disabled:
+    color->setRgb(128, 128, 128);
+    break;
+  case Status::Connected:
+    color->setRgb(0, 255, 0);
+    break;
+  case Status::Error:
+    color->setRgb(255, 0, 0);
+    break;
+  case Status::Connecting:
+    color->setRgb(0, 0, 170);
+    break;
+  default:
+    color->setRgb(255, 255, 255);
+  }
+  return color;
+}
+QString *PluginWindow::GetStatusString(Status status) {
+  QString *string = new QString();
+  string->clear();
+  switch (status) {
+  case Status::Disconnected:
+    string->append("Disconnected");
+    break;
+  case Status::Disabled:
+    string->append("Disabled");
+    break;
+  case Status::Connected:
+    string->append("Connected");
+    break;
+  case Status::Error:
+    string->append("Error");
+    break;
+  case Status::Connecting:
+    string->append("Connecting");
+    break;
+  default:
+    string->append("UNKNOWN");
+    break;
+  }
+  return string;
 }
 QLabel *PluginWindow::GetLabel(QString label) {
   if (label == "input") {
@@ -185,4 +246,13 @@ QLabel *PluginWindow::GetLabel(QString label) {
   } else if (label == "output") {
     return ui->lbl_status_output;
   }
+}
+void PluginWindow::SetAvailableDevices() {
+    blog(LOG_DEBUG, "SetAvailableDevices");
+    auto devices = DM->GetDevices();
+    
+    for (int i = 0; i < devices.count(); i++) {
+       QString xname=devices.at(i)->name;
+       add_midi_device(xname);
+    }
 }

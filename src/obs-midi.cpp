@@ -4,7 +4,6 @@
 
 #include <obs-data.h>
 #include "obs-midi.h"
-
 #include "forms/plugin-window.hpp"
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMainWindow>
@@ -31,7 +30,6 @@ bool obs_module_load(void)
 	blog(LOG_INFO, "MIDI LOADED ");
 
 	// Device Manager Setup
-
 	// UI SETUP
 	QMainWindow *mainWindow = (QMainWindow *)obs_frontend_get_main_window();
 	PluginWindow *settingsDialog = new PluginWindow(mainWindow);

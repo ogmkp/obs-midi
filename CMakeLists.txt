@@ -21,8 +21,11 @@ set(LINUX_MAINTAINER_EMAIL "cpyarger@gmail.com")
 ##################
 
 
+# RTMIDI
+add_subdirectory(src/RtMidi17)
 
-
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DASIO_STANDALONE)
 
 # OBS MIDI
@@ -71,13 +74,17 @@ set(PLUGIN_SOURCES
 	src/utils.cpp
 	src/forms/plugin-window.cpp
 	src/obs-midi.cpp
+    src/DeviceManager.cpp
 )
 
 list(APPEND PLUGIN_HEADERS
     src/utils.h
     src/forms/plugin-window.hpp
 	src/obs-midi.h
+    src/DeviceManager.h
 )
+
+
 
 
 # --- End of section ---
@@ -89,6 +96,7 @@ include_directories(
 	${Qt5Widgets_INCLUDES}
     SYSTEM
     "${CMAKE_SOURCE_DIR}/UI"
+    src/RtMidi17
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
@@ -96,6 +104,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 	libobs
 	Qt5::Core
 	Qt5::Widgets
+    RtMidi17
+
 )
 
 # --- Windows-specific build settings and tasks ---
@@ -205,3 +215,4 @@ endif()
 # -- End of section --
 
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES FOLDER "Plugins")
+

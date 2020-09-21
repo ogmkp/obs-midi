@@ -18,8 +18,12 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <QDialog>
 #include <QtWidgets>
 #include <vector>
+#include "../obs-midi.h"
+#include "../DeviceManager.h"
+#include "../utils.h"
+#include <obs-data.h>
+#include <obs-module.h>
 enum pairs { Scene, Source, Item, Transition, Audio, Media, Filter };
-
 class PluginWindow : public QDialog {
   Q_OBJECT
 
@@ -33,14 +37,18 @@ public:
   void add_midi_device(QString Name);
   void set_headers();
 public slots:
-  void SetStatus(QString label, QString Status);
+  void SetStatus(QString label, Status status);
   QLabel *GetLabel(QString label);
+  QColor  *GetStatusColor(Status status);
+  QString *GetStatusString(Status status);
   void refresh();
 private Q_SLOTS:
   void ToggleShowHide();
 
 private:
+
   Ui::PluginWindow *ui;
+  DeviceManager* DM;
   void get_scene_names();
   QStringList SceneList;
 };
