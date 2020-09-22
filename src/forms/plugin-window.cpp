@@ -15,7 +15,6 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #include <obs-frontend-api.h>
 
-
 #include "plugin-window.hpp"
 
 PluginWindow::PluginWindow(QWidget *parent) : ui(new Ui::PluginWindow) {
@@ -25,10 +24,56 @@ PluginWindow::PluginWindow(QWidget *parent) : ui(new Ui::PluginWindow) {
   ShowPair(pairs::Scene);
   ShowPair(pairs::Audio);
   blog(LOG_DEBUG, "Plugin window started");
-  SetStatus("input", Status::Error);
-  SetStatus("output", Status::Connected);
+
+  connect(DM, SIGNAL(status_changed(Device *, Status)), this,
+          SLOT(status_changed(Device *, Status)));
+  connect(DM, SIGNAL(do_device_poll()), this, SLOT(refresh()));
+  connect(ui->table_device, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemChanged(QTableWidgetItem*)));
+}
+void PluginWindow::itemChanged(QTableWidgetItem* item) {
+    if (!startup) {
+        int row = item->row();
+        auto itemx = ui->table_device->itemAt(row, 0);
+        QString name = itemx->text();
+        Device *dev = DM->get_device_by_name(name);
+        
+        switch (item->column()) {
+        case 1:
+            if (item->checkState() == Qt::Unchecked) {
+                dev->set_enabled(false);
+            }
+            else {
+                dev->set_enabled(true);
+            }
+
+            break;
+        case 3:
+            dev->feedback_enabled = item->checkState();
+            break;
+        }
+    }
+}
+void PluginWindow::status_changed(Device *device, Status status) {
+    auto items = ui->table_device->findItems(device->name, Qt::MatchFixedString);
+  switch (status) {
+  case Status::Connected:
+    break;
+  case Status::Disconnected:
+    break;
+  case Status::Disabled:
+    break;
+  case Status::Unplugged:
+    break;
+  case Status::Error:
+    break;
+  }
+  blog(LOG_DEBUG, "Status Change Message -- %s -- status --%s", device->name.toStdString().c_str(), get_status_string(status).toStdString().c_str());
+  if (items.count() > 0) {
+      set_table_device_status(items.at(0)->row(), status);
+  }
 }
 void PluginWindow::refresh() {
+    startup = true;
   get_scene_names();
   SetAvailableDevices();
 
@@ -36,6 +81,7 @@ void PluginWindow::refresh() {
   ui->cb_obs_output_scene->addItems(SceneList);
   ui->cb_obs_output_audio_source->clear();
   ui->cb_obs_output_audio_source->addItems(Utils::GetAudioSourceNames());
+  startup = false;
 }
 void PluginWindow::get_scene_names() {
   obs_frontend_source_list sceneList = {};
@@ -46,7 +92,7 @@ void PluginWindow::get_scene_names() {
   obs_frontend_source_list_free(&sceneList);
 }
 void PluginWindow::add_midi_device(QString name) {
-    blog(LOG_DEBUG, "Adding Midi Device %s", name.toStdString().c_str());
+  blog(LOG_DEBUG, "Adding Midi Device %s", name.toStdString().c_str());
   QTableWidgetItem *device_name = new QTableWidgetItem();
   QTableWidgetItem *device_enabled = new QTableWidgetItem();
   QTableWidgetItem *device_status = new QTableWidgetItem();
@@ -68,6 +114,7 @@ void PluginWindow::add_midi_device(QString name) {
   this->ui->table_device->setItem(rowcount, 3, feedback_enabled);
   this->ui->table_device->setItem(rowcount, 4, feedback_name);
   this->ui->table_device->setItem(rowcount, 5, feedback_status);
+
 }
 void PluginWindow::set_headers() {
   ui->table_device->setHorizontalHeaderLabels(
@@ -75,7 +122,14 @@ void PluginWindow::set_headers() {
        "Feedback Status"});
 }
 PluginWindow::~PluginWindow() { delete ui; }
+bool PluginWindow::deviceExist(QString name) {
+    auto items= ui->table_device->findItems(name, Qt::MatchFixedString);
+    if (items.count() > 0) {
+        return true;
+    }
+    else { return false; }
 
+}
 void PluginWindow::ShowPair(pairs Pair) {
   switch (Pair) {
   case pairs::Scene:
@@ -165,38 +219,11 @@ void PluginWindow::ToggleShowHide() {
     setVisible(false);
   }
 }
-
-void PluginWindow::SetStatus(QString Label, Status status) {
-  QLabel *label = GetLabel(Label);
-
-  switch (status) {
-  case Status::Disconnected:
-    label->setStyleSheet("QLabel {color: rgb(255, 0, 0);}");
-    label->setText("Disconnected");
-    break;
-  case Status::Disabled:
-    label->setStyleSheet("QLabel {color: rgb(128, 128, 128);}");
-    label->setText("Disabled");
-    break;
-  case Status::Connected:
-    label->setStyleSheet("QLabel {color: rgb(0,255,0);}");
-    label->setText("Connected");
-    break;
-  case Status::Error:
-    label->setStyleSheet("QLabel {color: rgb(255, 0, 0);}");
-    label->setText("Error");
-    break;
-  case Status::Connecting:
-    label->setStyleSheet("QLabel {color: rgb(0,0,170);}");
-    label->setText("Connecting");
-    break;
-  }
-}
-QColor *PluginWindow::GetStatusColor(Status status) {
+QColor PluginWindow::get_status_color(Status status) {
   QColor *color = new QColor();
   switch (status) {
   case Status::Disconnected:
-    color->setRgb(255, 0, 0);
+    color->setRgb(255, 128, 128);
     break;
   case Status::Disabled:
     color->setRgb(128, 128, 128);
@@ -207,15 +234,15 @@ QColor *PluginWindow::GetStatusColor(Status status) {
   case Status::Error:
     color->setRgb(255, 0, 0);
     break;
-  case Status::Connecting:
-    color->setRgb(0, 0, 170);
-    break;
+  case Status::Unplugged:
+      color->setRgb(128, 128, 128);
+      break;
   default:
     color->setRgb(255, 255, 255);
   }
-  return color;
+  return (QColor)*color;
 }
-QString *PluginWindow::GetStatusString(Status status) {
+QString PluginWindow::get_status_string(Status status) {
   QString *string = new QString();
   string->clear();
   switch (status) {
@@ -231,28 +258,31 @@ QString *PluginWindow::GetStatusString(Status status) {
   case Status::Error:
     string->append("Error");
     break;
-  case Status::Connecting:
-    string->append("Connecting");
+  case Status::Unplugged:
+    string->append("Unplugged");
     break;
   default:
     string->append("UNKNOWN");
     break;
   }
-  return string;
+  return (QString)*string;
 }
-QLabel *PluginWindow::GetLabel(QString label) {
-  if (label == "input") {
-    return ui->lbl_status_input;
-  } else if (label == "output") {
-    return ui->lbl_status_output;
-  }
+void PluginWindow::set_table_device_status(int row, Status status) {
+
+    auto item=this->ui->table_device->item(row, 2);
+    item->setText(get_status_string(status));
+    item->setTextColor(get_status_color(status));
+
 }
+
 void PluginWindow::SetAvailableDevices() {
-    blog(LOG_DEBUG, "SetAvailableDevices");
-    auto devices = DM->GetDevices();
-    
-    for (int i = 0; i < devices.count(); i++) {
-       QString xname=devices.at(i)->name;
-       add_midi_device(xname);
+  blog(LOG_DEBUG, "SetAvailableDevices");
+  auto devices = DM->GetDevices();
+
+  for (int i = 0; i < devices.count(); i++) {
+    QString xname = devices.at(i)->name;
+    if (!deviceExist(xname)) {
+        add_midi_device(xname);
     }
+  }
 }

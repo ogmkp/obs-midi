@@ -14,41 +14,45 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
 #pragma once
+#include "../DeviceManager.h"
+#include "../obs-midi.h"
+#include "../utils.h"
 #include "ui_plugin-window.h"
 #include <QDialog>
 #include <QtWidgets>
-#include <vector>
-#include "../obs-midi.h"
-#include "../DeviceManager.h"
-#include "../utils.h"
 #include <obs-data.h>
 #include <obs-module.h>
+#include <vector>
 enum pairs { Scene, Source, Item, Transition, Audio, Media, Filter };
 class PluginWindow : public QDialog {
   Q_OBJECT
 
 public:
   PluginWindow(QWidget *parent);
-  void SetAvailableDevices();
   ~PluginWindow();
   void ShowPair(pairs);
   void HidePair(pairs);
   void HideAllPairs();
   void add_midi_device(QString Name);
   void set_headers();
+  void set_table_device_status(int row, Status status);
 public slots:
-  void SetStatus(QString label, Status status);
-  QLabel *GetLabel(QString label);
-  QColor  *GetStatusColor(Status status);
-  QString *GetStatusString(Status status);
+	void SetAvailableDevices();
+
+  void status_changed(Device *device, Status status);
+  QColor get_status_color(Status status);
+  QString get_status_string(Status status);
   void refresh();
+  void itemChanged(QTableWidgetItem *);
+
 private Q_SLOTS:
   void ToggleShowHide();
 
 private:
-
+	bool deviceExist(QString name); 
+  bool startup = true;
   Ui::PluginWindow *ui;
-  DeviceManager* DM;
+  DeviceManager *DM;
   void get_scene_names();
   QStringList SceneList;
 };
