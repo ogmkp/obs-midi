@@ -44,6 +44,7 @@ public slots:
   QString get_status_string(Status status);
   void refresh();
   void itemChanged(QTableWidgetItem *);
+  void device_selected(int row, int col);
 
 private Q_SLOTS:
   void ToggleShowHide();

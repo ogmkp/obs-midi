@@ -28,7 +28,8 @@ OBS_MODULE_USE_DEFAULT_LOCALE("obs-midi", "en-US")
 bool obs_module_load(void)
 {
 	blog(LOG_INFO, "MIDI LOADED ");
-
+	
+	Config* config = new Config();
 	// Device Manager Setup
 	// UI SETUP
 	QMainWindow *mainWindow = (QMainWindow *)obs_frontend_get_main_window();

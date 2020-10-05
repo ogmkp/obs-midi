@@ -1,36 +1,17 @@
 cmake_minimum_required(VERSION 3.10)
-
-# Change obs-plugintemplate to your plugin's name in a machine-readable format
-# (e.g.: obs-myawesomeplugin) and set
 project(obs-midi VERSION 1.0.0)
-
-# Replace `Your Name Here` with the name (yours or your organization's) you want
-# to see as the author of the plugin (in the plugin's metadata itself and in the installers)
 set(PLUGIN_AUTHOR "Christopher P Yarger")
-
-# Replace `com.example.obs-plugin-template` with a unique Bundle ID for macOS releases
-# (used both in the installer and when submitting the installer for notarization)
 set(MACOS_BUNDLEID "com.example.obs-midi")
-
-# Replace `me@contoso.com` with the maintainer email address you want to put in Linux packages
 set(LINUX_MAINTAINER_EMAIL "cpyarger@gmail.com")
 
-# TAKE NOTE: No need to edit things past this point
-#################
-# THE GOOD STUFF #
-##################
-
-
-# RTMIDI
+#RTMIDI
 add_subdirectory(src/RtMidi17)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_definitions(-DASIO_STANDALONE)
 
-# OBS MIDI
+#OBS MIDI
 set(CMAKE_PREFIX_PATH "${QTDIR}")
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
@@ -41,7 +22,7 @@ include(external/FindLibObs.cmake)
 endif()
 
 find_package(LibObs REQUIRED)
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Sql)
 
 
 set(plugin_ui
@@ -49,7 +30,7 @@ set(plugin_ui
 )
 
 qt5_wrap_ui(plugin_ui_headers ${plugin_ui})
-# Version bits
+#Version bits
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -57,7 +38,7 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-# Get the latest abbreviated commit hash of the working branch
+#Get the latest abbreviated commit hash of the working branch
 execute_process(
   COMMAND git log -1 --format=%h
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -75,6 +56,7 @@ set(PLUGIN_SOURCES
 	src/forms/plugin-window.cpp
 	src/obs-midi.cpp
     src/DeviceManager.cpp
+    src/config.cpp
 )
 
 list(APPEND PLUGIN_HEADERS
@@ -82,12 +64,10 @@ list(APPEND PLUGIN_HEADERS
     src/forms/plugin-window.hpp
 	src/obs-midi.h
     src/DeviceManager.h
+    src/config.hpp
 )
 
-
-
-
-# --- End of section ---
+#-- - End of section -- -
 add_library(${CMAKE_PROJECT_NAME} MODULE ${PLUGIN_SOURCES} ${PLUGIN_HEADERS} ${plugin_ui_headers})
 
 include_directories(
@@ -99,23 +79,22 @@ include_directories(
     src/RtMidi17
 )
 
-target_link_libraries(${CMAKE_PROJECT_NAME}
-    "${OBS_FRONTEND_LIB}"
+target_link_libraries(
+    ${CMAKE_PROJECT_NAME}
+    ${OBS_FRONTEND_LIB}
 	libobs
 	Qt5::Core
 	Qt5::Widgets
-    RtMidi17
+    Qt5::Sql
+    RtMidi17)
 
-)
-
-# --- Windows-specific build settings and tasks ---
+#-- - Windows - specific build settings and tasks -- -
 if(WIN32)
 	if(NOT DEFINED OBS_FRONTEND_LIB)
 		set(OBS_FRONTEND_LIB "OBS_FRONTEND_LIB-NOTFOUND" CACHE FILEPATH "OBS frontend library")
 		message(FATAL_ERROR "Could not find OBS Frontend API\'s library !")
 	endif()
 
-    # Enable Multicore Builds and disable FH4 (to not depend on VCRUNTIME140_1.DLL when building with VS2019)
     if (MSVC)
         add_definitions(/MP /d2FH4-)
     endif()
@@ -132,16 +111,16 @@ if(WIN32)
 		"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/UI"
 	)
 
-	target_link_libraries(${CMAKE_PROJECT_NAME}
-		"${OBS_FRONTEND_LIB}"
+	target_link_libraries(
+        ${CMAKE_PROJECT_NAME}
+        ${OBS_FRONTEND_LIB}
     )
 
-	# --- Release package helper ---
-	# The "release" folder has a structure similar OBS' one on Windows
+
 	set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
 
     add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-        # If config is Release or RelWithDebInfo, package release files
+
         COMMAND if $<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>==1 (
             "${CMAKE_COMMAND}" -E make_directory
                 "${RELEASE_DIR}/data/obs-plugins/${CMAKE_PROJECT_NAME}"
@@ -160,14 +139,12 @@ if(WIN32)
                 "${RELEASE_DIR}/obs-plugins/${ARCH_NAME}"
         )
 
-        # If config is RelWithDebInfo, copy the pdb file
         COMMAND if $<CONFIG:RelWithDebInfo>==1 (
             "${CMAKE_COMMAND}" -E copy
                 "$<TARGET_PDB_FILE:${CMAKE_PROJECT_NAME}>"
                 "${RELEASE_DIR}/obs-plugins/${ARCH_NAME}"
         )
 
-        # Copy to obs-studio dev environment for immediate testing
         COMMAND if $<CONFIG:Debug>==1 (
             "${CMAKE_COMMAND}" -E copy
                 "$<TARGET_FILE:${CMAKE_PROJECT_NAME}>"
@@ -183,12 +160,9 @@ if(WIN32)
 
 
     )
-	# --- End of sub-section ---
 
 endif()
-# --- End of section ---
 
-# --- Linux-specific build settings and tasks ---
 if(UNIX AND NOT APPLE)
     include(GNUInstallDirs)
 

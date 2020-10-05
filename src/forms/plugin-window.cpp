@@ -24,12 +24,21 @@ PluginWindow::PluginWindow(QWidget *parent) : ui(new Ui::PluginWindow) {
   ShowPair(pairs::Scene);
   ShowPair(pairs::Audio);
   blog(LOG_DEBUG, "Plugin window started");
-
+  ui->tabWidget->setTabEnabled(1, false);
   connect(DM, SIGNAL(status_changed(Device *, Status)), this,
           SLOT(status_changed(Device *, Status)));
   connect(DM, SIGNAL(do_device_poll()), this, SLOT(refresh()));
   connect(ui->table_device, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemChanged(QTableWidgetItem*)));
+  connect(ui->table_device, SIGNAL(cellClicked(int , int )), this, SLOT(device_selected(int, int)));
 }
+void PluginWindow::device_selected(int row, int column) {
+    QString device_name = ui->table_device->itemAt(0, row)->text();
+    ui->tabWidget->setTabText(1, QString("Configure - ").append(device_name));
+    ui->tabWidget->setTabEnabled(1, true);
+    ui->mapping_lbl_device_name->setText(device_name);
+    blog(LOG_DEBUG, "Item Selected %s", device_name.toStdString().c_str());
+}
+
 void PluginWindow::itemChanged(QTableWidgetItem* item) {
     if (!startup) {
         int row = item->row();

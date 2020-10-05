@@ -2,11 +2,15 @@
 #include "RtMidi17/rtmidi17.hpp"
 #include <QObject>
 #include <QTimer>
-enum Status { Error, Connected, Disconnected, Unplugged,  Disabled };
+#include "obs-midi.h"
+#include "obs-data.h"
+enum  Status { Error, Connected, Disconnected, Unplugged, Disabled };
 class Device : public QObject {
   Q_OBJECT
 public:
   Device();
+  Device(QString name, bool enabled = false, QString feedback_name = "", bool feedback_enabled = false);
+
   ~Device();
   QString name;
   bool enabled;
@@ -34,7 +38,8 @@ public:
   DeviceManager();
   ~DeviceManager();
   void add_new_device(QString name);
-  void append_device();
+  void add_existing_device(QString name, bool enabled=false, QString feedback_name="", bool feedback_enabled = false );
+	  void append_device();
   void edit_device();
   void delete_device();
   void load_devices_from_config();
@@ -52,12 +57,18 @@ public slots:
 private:
 	QTimer *device_status_poller;
 	void setup_device_status_poller();
+
 	rtmidi::midi_in* in;
 	rtmidi::midi_out* out;
 	int portCount=-1;
 	QList<Device*> Devices;
-  bool does_device_exist_in_list(QString name);
+	QStringList current_in_device_names;
+	QStringList current_out_device_names;
+	QStringList prev_in_device_names;
+	QStringList prev_out_device_names;
+  bool does_device_exist_in_port_list(QString name);
   bool is_device_in_config(QString name);
+  bool is_device_in_device_list(QString name);
 private slots:
 	void poll_devices();
 
